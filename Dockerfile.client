@@ -25,4 +25,4 @@ RUN cd /build \
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-cp", "./app.jar", "com.speedscale.newboots.HttpClientRunner"] 
+ENTRYPOINT ["java", "-jar", "./app.jar"] 
