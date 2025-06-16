@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.HttpEntity;
 
@@ -73,9 +72,8 @@ public class ZipHelper {
 
             logger.info("[{}] REQ zip download: {}", requestId, httpget.getRequestUri());
 
-            try (CloseableHttpResponse response = HTTP_CLIENT.execute(httpget)) {
+            String result = HTTP_CLIENT.execute(httpget, response -> {
                 HttpEntity entity = response.getEntity();
-
                 logger.info("[{}] RES zip download: {}", requestId, response.getCode());
                 
                 if (response.getCode() == 200) {
@@ -86,14 +84,19 @@ public class ZipHelper {
                     List<ZipFileInfo> zipIndex = getZipIndex(zipBytes);
                     
                     // Convert to JSON
-                    body = convertToJson(zipIndex);
-                    
+                    try {
+                        return convertToJson(zipIndex);
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
                 } else {
                     String errorMsg = String.format("Failed to download zip file from URL: %s", zipUrl);
-                    body = "{\"error\": \"" + errorMsg + "\", \"status\": " + response.getCode() + ", \"url\": \"" + zipUrl + "\"}";
                     logger.error("[{}] ZIP download failed - Status: {}, URL: {}", requestId, response.getCode(), zipUrl);
+                    return "{\"error\": \"" + errorMsg + "\", \"status\": " + response.getCode() + ", \"url\": \"" + zipUrl + "\"}";
                 }
-            }
+            });
+            
+            body = result;
             
         } catch (Exception e) {
             logger.error("[{}] Unable to download and process zip file", requestId, e);

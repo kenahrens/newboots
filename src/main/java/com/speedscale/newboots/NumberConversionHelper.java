@@ -11,8 +11,7 @@ import javax.xml.soap.SOAPPart;
 
 public class NumberConversionHelper {
     private static final String SOAP_ENDPOINT = "https://www.dataaccess.com/webservicesserver/NumberConversion.wso";
-    private static final String SOAP_ACTION = "http://www.dataaccess.com/webservicesserver/NumberConversion.wso/NumberToWords";
-
+    
     public static String numberToWords(int number) throws Exception {
         // Create SOAP Connection
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
