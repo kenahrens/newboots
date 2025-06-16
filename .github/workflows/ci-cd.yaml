@@ -50,5 +50,4 @@ jobs:
         run: docker push ghcr.io/kenahrens/newboots:latest
 
       - name: Check k8s manifest image
-        run: |
-          grep 'image: ghcr.io/kenahrens/newboots:latest' k8s/deploy.yaml 
+        run: make check-k8s-image 
