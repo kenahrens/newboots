@@ -22,7 +22,7 @@ public class ZipEndpointIntegrationTest {
     public void testZipEndpointDefault() {
         String url = "http://localhost:" + port + "/zip";
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         String body = response.getBody();
         assertNotNull(body);
         assertTrue(body.contains("totalFiles"), "Response should contain 'totalFiles'");
@@ -33,7 +33,7 @@ public class ZipEndpointIntegrationTest {
     public void testZipEndpointWithFilename() {
         String url = "http://localhost:" + port + "/zip?filename=jquery";
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(200, response.getStatusCode().value());
         String body = response.getBody();
         assertNotNull(body);
         assertTrue(body.contains("totalFiles"), "Response should contain 'totalFiles'");

@@ -19,6 +19,7 @@ A Spring Boot microservice application built with Spring Boot 3.2.3 and Java 17.
 - `GET /spacex` - Fetches latest SpaceX launch data
 - `GET /zip?filename={filename}` - Processes ZIP files (optional filename parameter)
 - `POST /location` - Accepts and returns location data
+- `GET /number-to-words?number={number}` - Converts a number to words using a SOAP API
 
 ## Prerequisites
 
