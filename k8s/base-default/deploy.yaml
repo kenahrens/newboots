@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: newboots
+  name: newboots-server
   labels:
-    app: newboots
+    app: newboots-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: newboots
+      app: newboots-server
   template:
     metadata:
       labels:
-        app: newboots
+        app: newboots-server
     spec:
       containers:
-        - name: newboots
-          image: ghcr.io/kenahrens/newboots:latest
+        - name: newboots-server
+          image: ghcr.io/kenahrens/newboots-server:latest
           imagePullPolicy: Always
           readinessProbe:
             initialDelaySeconds: 10
@@ -46,4 +46,4 @@ spec:
                   fieldPath: metadata.namespace
           envFrom:
             - configMapRef:
-                name: newboots 
+                name: newboots-server 
