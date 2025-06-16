@@ -23,9 +23,6 @@ RUN cd /build \
     && cp /build/target/*.jar /usr/src/app/app.jar \
     && mvn -q clean
 
-ENV PORT=8080
-EXPOSE $PORT
+EXPOSE 8080
 
-ENV MAIN_CLASS=com.speedscale.newboots.NewbootsApplication
-
-ENTRYPOINT [ "sh", "-c", "java $JAVA_USER_OPTS -jar ./app.jar" ]
+ENTRYPOINT ["java", "-cp", "./app.jar", "com.speedscale.newboots.NewbootsApplication"] 

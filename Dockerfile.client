@@ -1,0 +1,28 @@
+FROM amazoncorretto:17
+
+# Install Maven 3.9.10
+ENV MAVEN_VERSION=3.9.10
+ENV MAVEN_HOME=/opt/maven
+ENV PATH=$MAVEN_HOME/bin:$PATH
+
+RUN yum update -y \
+    && yum install -y curl tar gzip \
+    && curl -fsSL https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz -o /tmp/maven.tar.gz \
+    && mkdir -p $MAVEN_HOME \
+    && tar -xzf /tmp/maven.tar.gz -C $MAVEN_HOME --strip-components=1 \
+    && rm -f /tmp/maven.tar.gz \
+    && yum clean all
+
+WORKDIR /usr/src/app
+
+COPY . /build
+
+RUN cd /build \
+    && mvn -q clean \
+    && mvn -q -DskipTests package \
+    && cp /build/target/*.jar /usr/src/app/app.jar \
+    && mvn -q clean
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-cp", "./app.jar", "com.speedscale.newboots.HttpClientRunner"] 

@@ -1,7 +1,7 @@
 IMAGE_NAME ?= ghcr.io/kenahrens/newboots
 TAG ?= latest
 
-.PHONY: test jar docker run lint deploy patch check-k8s-image
+.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server
 
 test:
 	mvn test
@@ -12,7 +12,15 @@ jar:
 run:
 	mvn spring-boot:run
 
-docker:
+docker-client:
+	docker build -f Dockerfile.client -t ghcr.io/kenahrens/newboots-client:latest .
+	docker push ghcr.io/kenahrens/newboots-client:latest
+
+docker-server:
+	docker build -f Dockerfile.server -t ghcr.io/kenahrens/newboots-server:latest .
+	docker push ghcr.io/kenahrens/newboots-server:latest
+
+docker: docker-client docker-server
 	docker build -t $(IMAGE_NAME):$(TAG) .
 	docker push $(IMAGE_NAME):$(TAG)
 

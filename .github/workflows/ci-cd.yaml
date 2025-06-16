@@ -43,11 +43,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: docker build -t ghcr.io/kenahrens/newboots:latest .
+      - name: Build and push client Docker image
+        run: |
+          docker build -f Dockerfile.client -t ghcr.io/kenahrens/newboots-client:latest .
+          docker push ghcr.io/kenahrens/newboots-client:latest
 
-      - name: Push Docker image
-        run: docker push ghcr.io/kenahrens/newboots:latest
+      - name: Build and push server Docker image
+        run: |
+          docker build -f Dockerfile.server -t ghcr.io/kenahrens/newboots-server:latest .
+          docker push ghcr.io/kenahrens/newboots-server:latest
 
       - name: Check k8s manifest image
         run: make check-k8s-image 

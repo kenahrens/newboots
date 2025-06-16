@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: newboots
-          image: ghcr.io/kenahrens/newboots:latest
+          image: ghcr.io/kenahrens/newboots-server:latest
           imagePullPolicy: Always
           readinessProbe:
             initialDelaySeconds: 10
