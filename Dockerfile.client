@@ -5,6 +5,9 @@ ENV MAVEN_VERSION=3.9.10
 ENV MAVEN_HOME=/opt/maven
 ENV PATH=$MAVEN_HOME/bin:$PATH
 
+# Optionally set BASE_URL to override the default base URL used by the client
+# ENV BASE_URL=http://newboots:8080
+
 RUN yum update -y \
     && yum install -y curl tar gzip \
     && curl -fsSL https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz -o /tmp/maven.tar.gz \

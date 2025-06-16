@@ -7,11 +7,17 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 public class HttpClientRunner {
-    private static final String BASE_URL = "http://newboots:8080";
     private static final int DELAY_MS = 2000;
+    private static final String DEFAULT_BASE_URL = "http://localhost:8080";
+
+    private static String getBaseUrl() {
+        String envUrl = System.getenv("BASE_URL");
+        return (envUrl != null && !envUrl.isEmpty()) ? envUrl : DEFAULT_BASE_URL;
+    }
 
     public static void main(String[] args) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
+        String baseUrl = getBaseUrl();
         String[] endpoints = {
             "/", // Home
             "/healthz",
@@ -27,7 +33,7 @@ public class HttpClientRunner {
             System.out.println("\n--- Starting cycle " + cycle + " ---");
             for (String endpoint : endpoints) {
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(BASE_URL + endpoint))
+                        .uri(URI.create(baseUrl + endpoint))
                         .timeout(Duration.ofSeconds(10))
                         .header("Accept", "application/json")
                         .GET()
@@ -37,7 +43,8 @@ public class HttpClientRunner {
                     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                     System.out.println("Response: " + response.statusCode() + "\n" + response.body());
                 } catch (Exception e) {
-                    System.out.println("Error calling " + endpoint + ": " + e.getMessage());
+                    System.out.println("Error calling " + endpoint + ": " + e);
+                    e.printStackTrace();
                 }
                 Thread.sleep(DELAY_MS);
             }
@@ -49,7 +56,7 @@ public class HttpClientRunner {
                     "\"macAddress\": \"00:1A:2B:3C:4D:5E\"," +
                     "\"ipv4\": \"192.168.1.1\"}";
             HttpRequest postRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/location"))
+                    .uri(URI.create(baseUrl + "/location"))
                     .timeout(Duration.ofSeconds(10))
                     .header("Accept", "application/json")
                     .header("Content-Type", "application/json")
@@ -60,7 +67,8 @@ public class HttpClientRunner {
                 HttpResponse<String> response = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
                 System.out.println("Response: " + response.statusCode() + "\n" + response.body());
             } catch (Exception e) {
-                System.out.println("Error calling POST /location: " + e.getMessage());
+                System.out.println("Error calling POST /location: " + e);
+                e.printStackTrace();
             }
             Thread.sleep(DELAY_MS);
             cycle++;

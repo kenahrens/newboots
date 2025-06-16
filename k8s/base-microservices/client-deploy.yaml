@@ -21,6 +21,8 @@ spec:
           env:
             - name: SERVER_PORT
               value: "8080"
+            - name: BASE_URL
+              value: "http://newboots-server:80"
             - name: APP_POD_NAMESPACE
               valueFrom:
                 fieldRef:
