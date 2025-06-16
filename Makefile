@@ -1,7 +1,7 @@
 IMAGE_NAME ?= ghcr.io/kenahrens/newboots
 TAG ?= latest
 
-.PHONY: test jar docker run lint deploy patch
+.PHONY: test jar docker run lint deploy patch check-k8s-image
 
 test:
 	mvn test
@@ -26,3 +26,6 @@ deploy:
 patch:
 	kubectl patch deployment newboots -n microservices --patch-file k8s/patch-inject-newboots.yaml
 	kubectl patch deployment newboots -n default --patch-file k8s/patch-inject-newboots.yaml
+
+check-k8s-image:
+	grep 'image: ghcr.io/kenahrens/newboots:latest' k8s/base-default/deploy.yaml
