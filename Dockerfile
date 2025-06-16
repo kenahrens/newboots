@@ -26,4 +26,6 @@ RUN cd /build \
 ENV PORT=8080
 EXPOSE $PORT
 
-ENTRYPOINT [ "sh", "-c", "java $JAVA_USER_OPTS -jar ./app.jar" ]
+ENV MAIN_CLASS=com.speedscale.newboots.NewbootsApplication
+
+ENTRYPOINT [ "sh", "-c", "java $JAVA_USER_OPTS -cp ./app.jar $MAIN_CLASS" ]

@@ -13,7 +13,7 @@
   },
   {
     "ParameterKey": "ContainerImage",
-    "ParameterValue": "gcr.io/speedscale-demos/newboots:latest"
+    "ParameterValue": "ghcr.io/kenahrens/newboots:latest"
   },
   {
     "ParameterKey": "ContainerPort",

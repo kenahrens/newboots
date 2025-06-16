@@ -45,7 +45,7 @@ This directory contains CloudFormation templates and deployment scripts for depl
    - `VpcId`: Your VPC ID (e.g., `vpc-12345678`)
    - `SubnetIds`: Comma-separated private subnet IDs for ECS tasks
    - `PublicSubnetIds`: Comma-separated public subnet IDs for ALB
-   - `ContainerImage`: Docker image URI (default: `gcr.io/speedscale-demos/newboots:latest`)
+   - `ContainerImage`: Docker image URI (default: `ghcr.io/kenahrens/newboots:latest`)
 
 3. **Deploy**
    ```bash
@@ -92,7 +92,7 @@ The CloudFormation template creates:
 | VpcId | VPC ID | Required | VPC where resources will be created |
 | SubnetIds | Subnet IDs | Required | Private subnets for ECS tasks |
 | PublicSubnetIds | Subnet IDs | Required | Public subnets for ALB |
-| ContainerImage | String | `gcr.io/speedscale-demos/newboots:latest` | Docker image URI |
+| ContainerImage | String | `ghcr.io/kenahrens/newboots:latest` | Docker image URI |
 | ContainerPort | Number | 8080 | Application port |
 | DesiredCount | Number | 2 | Initial number of tasks |
 | TaskCpu | String | '512' | CPU units (256, 512, 1024, 2048, 4096) |

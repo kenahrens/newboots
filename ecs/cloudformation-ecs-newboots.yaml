@@ -16,7 +16,7 @@ Parameters:
     
   ContainerImage:
     Type: String
-    Default: gcr.io/speedscale-demos/newboots:latest
+    Default: ghcr.io/kenahrens/newboots:latest
     Description: Docker image URI for the newboots application
     
   ContainerPort:

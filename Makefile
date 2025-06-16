@@ -1,7 +1,7 @@
 IMAGE_NAME ?= ghcr.io/kenahrens/newboots
 TAG ?= latest
 
-.PHONY: test jar docker run lint
+.PHONY: test jar docker run lint deploy patch
 
 test:
 	mvn test
@@ -18,3 +18,11 @@ docker:
 
 lint:
 	mvn checkstyle:check
+
+deploy:
+	kubectl apply -k k8s/overlays/default
+	kubectl apply -k k8s/overlays/microservices
+
+patch:
+	kubectl patch deployment newboots -n microservices --patch-file k8s/patch-inject-newboots.yaml
+	kubectl patch deployment newboots -n default --patch-file k8s/patch-inject-newboots.yaml
