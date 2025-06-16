@@ -28,4 +28,4 @@ EXPOSE $PORT
 
 ENV MAIN_CLASS=com.speedscale.newboots.NewbootsApplication
 
-ENTRYPOINT [ "sh", "-c", "java $JAVA_USER_OPTS -cp ./app.jar $MAIN_CLASS" ]
+ENTRYPOINT [ "sh", "-c", "java $JAVA_USER_OPTS -jar ./app.jar" ]
