@@ -1,0 +1,44 @@
+### Home endpoint
+GET http://localhost:8080/
+Accept: application/json
+
+### Health check endpoint
+GET http://localhost:8080/healthz
+Accept: application/json
+
+### Greeting endpoint with customizable name
+GET http://localhost:8080/greeting?name=TestUser
+Accept: application/json
+
+### NASA APOD data
+GET http://localhost:8080/nasa
+Accept: application/json
+
+### SpaceX latest launch data
+GET http://localhost:8080/spacex
+Accept: application/json
+
+### ZIP processing (default)
+GET http://localhost:8080/zip
+Accept: application/json
+
+### ZIP processing with specific file
+GET http://localhost:8080/zip?filename=jquery
+Accept: application/json
+
+### Location POST (echoes back location data)
+POST http://localhost:8080/location
+Content-Type: application/json
+Accept: application/json
+
+{
+  "locationID": "loc-001",
+  "latitude": 37.7749,
+  "longitude": -122.4194,
+  "macAddress": "00:1A:2B:3C:4D:5E",
+  "ipv4": "192.168.1.1"
+}
+
+### Number to words conversion
+GET http://localhost:8080/number-to-words?number=123
+Accept: application/json 
