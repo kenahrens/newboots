@@ -30,6 +30,9 @@ jobs:
       - name: Run tests
         run: mvn test
 
+      - name: Run Checkstyle linter
+        run: mvn checkstyle:check
+
       - name: Build JAR
         run: mvn clean package
 

@@ -1,7 +1,7 @@
 IMAGE_NAME ?= ghcr.io/kenahrens/newboots
 TAG ?= latest
 
-.PHONY: test jar docker run
+.PHONY: test jar docker run lint
 
 test:
 	mvn test
@@ -15,3 +15,6 @@ run:
 docker:
 	docker build -t $(IMAGE_NAME):$(TAG) .
 	docker push $(IMAGE_NAME):$(TAG)
+
+lint:
+	mvn checkstyle:check

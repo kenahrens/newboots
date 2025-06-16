@@ -8,7 +8,6 @@ import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
-import java.io.ByteArrayOutputStream;
 
 public class NumberConversionHelper {
     private static final String SOAP_ENDPOINT = "https://www.dataaccess.com/webservicesserver/NumberConversion.wso";
@@ -66,7 +65,9 @@ public class NumberConversionHelper {
         if (nodes.getLength() > 0) {
             org.w3c.dom.Node resultNode = nodes.item(0);
             String val = resultNode.getTextContent();
-            if (val != null) return val.trim();
+            if (val != null) {
+                return val.trim();
+            }
         }
         return null;
     }

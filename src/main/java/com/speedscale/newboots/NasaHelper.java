@@ -18,13 +18,13 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 
 public class NasaHelper {
 
-	static Logger logger = LoggerFactory.getLogger(NasaHelper.class);
+    static Logger logger = LoggerFactory.getLogger(NasaHelper.class);
     static final String NASA_URI = "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY";
     
     static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
-	public static String invoke() throws Exception {
-	    HttpRequestFactory factory = HTTP_TRANSPORT.createRequestFactory(null);
+    public static String invoke() throws Exception {
+        HttpRequestFactory factory = HTTP_TRANSPORT.createRequestFactory(null);
         GenericUrl url = new GenericUrl(NASA_URI);
         HttpRequest req = factory.buildGetRequest(url);
         HttpResponse res = req.execute();
@@ -33,5 +33,5 @@ public class NasaHelper {
         String text = br.lines().collect(Collectors.joining("\n"));
         br.close();
         return text;
-	}
+    }
 } 

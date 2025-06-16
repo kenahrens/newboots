@@ -20,7 +20,7 @@ public class Location {
         this.ipv4 = ipv4;
     }
 
-	public void setLocationID(String locationID) {
+    public void setLocationID(String locationID) {
         this.locationID = locationID;
     }
 
