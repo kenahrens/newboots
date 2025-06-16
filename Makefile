@@ -32,11 +32,11 @@ deploy:
 	kubectl apply -k k8s/overlays/microservices
 
 patch:
-	kubectl patch deployment newboots -n microservices --patch-file k8s/patch-inject-newboots.yaml
-	kubectl patch deployment newboots -n default --patch-file k8s/patch-inject-newboots.yaml
+	kubectl patch deployment newboots-server -n microservices --patch-file k8s/patch-inject-newboots.yaml
+	kubectl patch deployment newboots-server -n default --patch-file k8s/patch-inject-newboots.yaml
 
 check-k8s-image:
-	grep 'image: ghcr.io/kenahrens/newboots:latest' k8s/base-default/deploy.yaml
+	grep -E 'image: ghcr.io/kenahrens/newboots-(client|server):latest' k8s/base-default/deploy.yaml
 
 delete:
 	kubectl delete deployment newboots-server -n microservices || true
