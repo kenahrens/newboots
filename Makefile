@@ -1,7 +1,7 @@
 IMAGE_NAME ?= ghcr.io/kenahrens/newboots
 TAG ?= latest
 
-.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server
+.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean
 
 test:
 	mvn test
@@ -37,3 +37,11 @@ patch:
 
 check-k8s-image:
 	grep 'image: ghcr.io/kenahrens/newboots:latest' k8s/base-default/deploy.yaml
+
+delete:
+	kubectl delete deployment newboots-server -n microservices || true
+	kubectl delete deployment newboots-server -n default || true
+	kubectl delete deployment newboots-client -n microservices || true
+
+clean:
+	mvn clean
