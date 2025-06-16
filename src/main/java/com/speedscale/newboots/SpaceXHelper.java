@@ -23,9 +23,9 @@ public class SpaceXHelper {
     
     static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 
-	public static String invoke() throws Exception {
-	    
-	    HttpRequestFactory factory = HTTP_TRANSPORT.createRequestFactory(null);
+    public static String invoke() throws Exception {
+        
+        HttpRequestFactory factory = HTTP_TRANSPORT.createRequestFactory(null);
         GenericUrl url = new GenericUrl(SPACEX_URI);
         HttpRequest req = factory.buildGetRequest(url);
         HttpResponse res = req.execute();
@@ -34,5 +34,5 @@ public class SpaceXHelper {
         String text = br.lines().collect(Collectors.joining("\n"));
         br.close();
         return text;
-	}
+    }
 } 
