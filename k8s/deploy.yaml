@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: newboots
+  labels:
+    app: newboots
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: newboots
+  template:
+    metadata:
+      labels:
+        app: newboots
+    spec:
+      containers:
+        - name: newboots
+          image: ghcr.io/kenahrens/newboots:latest
+          imagePullPolicy: Always
+          readinessProbe:
+            initialDelaySeconds: 10
+            failureThreshold: 3
+            periodSeconds: 3
+            timeoutSeconds: 1
+            httpGet:
+              path: /actuator/health
+              port: http
+          resources:
+            requests:
+              cpu: "0.1"
+              memory: 512Mi
+            limits:
+              cpu: "0.5"
+              memory: 1024Mi
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: APP_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+          envFrom:
+            - configMapRef:
+                name: newboots 
