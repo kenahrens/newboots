@@ -37,6 +37,6 @@
   },
   {
     "ParameterKey": "GoogleApplicationCredentials",
-    "ParameterValue": "set"
+    "ParameterValue": ""
   }
 ] 
