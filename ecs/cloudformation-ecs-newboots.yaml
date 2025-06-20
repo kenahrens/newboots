@@ -52,6 +52,9 @@ Parameters:
     Description: Google Application Credentials JSON (base64 encoded)
     NoEcho: true
 
+Conditions:
+  HasGoogleCreds: !Not [!Equals [!Ref GoogleApplicationCredentials, '']]
+
 Resources:
   # ECS Cluster
   ECSCluster:
@@ -302,9 +305,6 @@ Resources:
         TargetValue: 70.0
         ScaleOutCooldown: 300
         ScaleInCooldown: 300
-
-Conditions:
-  HasGoogleCreds: !Not [!Equals [!Ref GoogleApplicationCredentials, '']]
 
 Outputs:
   ClusterName:
