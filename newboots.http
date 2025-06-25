@@ -1,5 +1,5 @@
 @local_host = http://localhost:8080
-@ecs_host = http://newboots-ecs-alb-1396597288.us-east-1.elb.amazonaws.com
+@ecs_host = http://newboots-ecs-alb-1410550651.us-east-1.elb.amazonaws.com
 
 @host = {{ecs_host}}
 # @host = {{local_host}}
@@ -48,54 +48,3 @@ Accept: application/json
 ### Number to words conversion
 GET {{host}}/number-to-words?number=123
 Accept: application/json
-
-###
-### ECS Endpoints
-###
-
-@ecs_host = http://newboots-ecs-alb-1396597288.us-east-1.elb.amazonaws.com
-
-### Home endpoint (ECS)
-GET {{ecs_host}}/
-Accept: application/json
-
-### Health check endpoint (ECS)
-GET {{ecs_host}}/healthz
-Accept: application/json
-
-### Greeting endpoint with customizable name (ECS)
-GET {{ecs_host}}/greeting?name=TestUser
-Accept: application/json
-
-### NASA APOD data (ECS)
-GET {{ecs_host}}/nasa
-Accept: application/json
-
-### SpaceX latest launch data (ECS)
-GET {{ecs_host}}/spacex
-Accept: application/json
-
-### ZIP processing (default) (ECS)
-GET {{ecs_host}}/zip
-Accept: application/json
-
-### ZIP processing with specific file (ECS)
-GET {{ecs_host}}/zip?filename=jquery
-Accept: application/json
-
-### Location POST (echoes back location data) (ECS)
-POST {{ecs_host}}/location
-Content-Type: application/json
-Accept: application/json
-
-{
-  "locationID": "loc-001",
-  "latitude": 37.7749,
-  "longitude": -122.4194,
-  "macAddress": "00:1A:2B:3C:4D:5E",
-  "ipv4": "192.168.1.1"
-}
-
-### Number to words conversion (ECS)
-GET {{ecs_host}}/number-to-words?number=123
-Accept: application/json 
