@@ -1,7 +1,7 @@
 IMAGE_NAME ?= ghcr.io/kenahrens/newboots
 TAG ?= latest
 
-.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean
+.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean test-endpoints
 
 test:
 	mvn test
@@ -45,3 +45,6 @@ delete:
 
 clean:
 	mvn clean
+
+test-endpoints:
+	./scripts/test_endpoints.sh

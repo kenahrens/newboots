@@ -24,5 +24,6 @@ RUN cd /build \
     && mvn -q clean
 
 EXPOSE 8080
+EXPOSE 9090
 
 ENTRYPOINT ["java", "-jar", "./app.jar"] 

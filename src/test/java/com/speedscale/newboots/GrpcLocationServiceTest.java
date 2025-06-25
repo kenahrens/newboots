@@ -18,7 +18,7 @@ public class GrpcLocationServiceTest {
         String serverName = InProcessServerBuilder.generateName();
         server = InProcessServerBuilder.forName(serverName)
                 .directExecutor()
-                .addService(new GrpcLocationService())
+                .addService(new TestLocationService())
                 .addService(new CustomGrpcHealthService())
                 .build()
                 .start();
@@ -57,6 +57,14 @@ public class GrpcLocationServiceTest {
         public void check(HealthCheckRequest request, StreamObserver<HealthCheckResponse> responseObserver) {
             HealthCheckResponse response = HealthCheckResponse.newBuilder().setStatus("SERVING").build();
             responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        }
+    }
+
+    private static class TestLocationService extends LocationServiceGrpc.LocationServiceImplBase {
+        @Override
+        public void echoLocation(Location request, StreamObserver<Location> responseObserver) {
+            responseObserver.onNext(request);
             responseObserver.onCompleted();
         }
     }

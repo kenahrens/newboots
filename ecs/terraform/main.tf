@@ -33,9 +33,9 @@ resource "aws_ecs_cluster" "main" {
   }
 }
 
-resource "aws_security_group" "alb" {
-  name        = "${var.stack_name}-alb-sg"
-  description = "Security group for newboots Application Load Balancer"
+resource "aws_security_group" "alb_baseline" {
+  name        = "${var.stack_name}-alb-baseline-sg"
+  description = "Security group for baseline ALB"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -44,24 +44,95 @@ resource "aws_security_group" "alb" {
     to_port     = 80
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  ingress {
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
 
-  tags = {
-    Name = "${var.stack_name}-alb-sg"
+resource "aws_lb" "baseline" {
+  name               = "${var.stack_name}-alb-baseline"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_baseline.id]
+  subnets            = var.public_subnet_ids
+}
+
+resource "aws_lb_target_group" "baseline_grpc" {
+  name        = "${var.stack_name}-tg-baseline-grpc"
+  port        = 9090
+  protocol    = "GRPC"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+  health_check {
+    protocol = "GRPC"
+    path     = "/grpc.health.v1.Health/Check"
+    port     = "9090"
   }
+}
+
+resource "aws_lb_listener" "baseline_http" {
+  load_balancer_arn = aws_lb.baseline.arn
+  port              = 80
+  protocol          = "GRPC"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.baseline_grpc.arn
+  }
+  depends_on = [aws_lb_target_group.baseline_grpc]
+}
+
+resource "aws_security_group" "alb_sidecar" {
+  name        = "${var.stack_name}-alb-sidecar-sg"
+  description = "Security group for sidecar ALB"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_lb" "sidecar" {
+  name               = "${var.stack_name}-alb-sidecar"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sidecar.id]
+  subnets            = var.public_subnet_ids
+}
+
+resource "aws_lb_target_group" "sidecar_grpc" {
+  name        = "${var.stack_name}-tg-sidecar-grpc"
+  port        = 9090
+  protocol    = "GRPC"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+  health_check {
+    protocol = "GRPC"
+    path     = "/grpc.health.v1.Health/Check"
+    port     = "9090"
+  }
+}
+
+resource "aws_lb_listener" "sidecar_http" {
+  load_balancer_arn = aws_lb.sidecar.arn
+  port              = 80
+  protocol          = "GRPC"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.sidecar_grpc.arn
+  }
+  depends_on = [aws_lb_target_group.sidecar_grpc]
 }
 
 resource "aws_security_group" "ecs" {
@@ -71,43 +142,18 @@ resource "aws_security_group" "ecs" {
 
   ingress {
     protocol        = "tcp"
-    from_port       = var.container_port
-    to_port         = var.container_port
-    security_groups = [aws_security_group.alb.id]
+    from_port       = 9090
+    to_port         = 9090
+    security_groups = [aws_security_group.alb_baseline.id, aws_security_group.alb_sidecar.id]
   }
-
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
   tags = {
     Name = "${var.stack_name}-ecs-sg"
-  }
-}
-
-resource "aws_lb" "main" {
-  name               = "${var.stack_name}-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = var.public_subnet_ids
-
-  tags = {
-    Name = "${var.stack_name}-alb"
-  }
-}
-
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.baseline.arn
   }
 }
 
@@ -156,165 +202,6 @@ resource "aws_iam_policy" "secrets_access" {
 resource "aws_iam_role_policy_attachment" "secrets_access" {
   role       = aws_iam_role.task_execution_role.name
   policy_arn = aws_iam_policy.secrets_access.arn
-}
-
-#---------------------------------------------------------------------------
-# Baseline Application
-#---------------------------------------------------------------------------
-resource "aws_cloudwatch_log_group" "baseline" {
-  name              = "/ecs/${var.stack_name}/newboots-baseline"
-  retention_in_days = 7
-}
-
-resource "aws_iam_role" "baseline_task_role" {
-  name = "${var.stack_name}-baseline-task-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ecs-tasks.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-data "aws_iam_policy_document" "baseline_logs" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-    ]
-    resources = [aws_cloudwatch_log_group.baseline.arn]
-  }
-}
-
-resource "aws_iam_policy" "baseline_logs" {
-  name   = "${var.stack_name}-baseline-logs"
-  policy = data.aws_iam_policy_document.baseline_logs.json
-}
-
-resource "aws_iam_role_policy_attachment" "baseline_logs" {
-  role       = aws_iam_role.baseline_task_role.name
-  policy_arn = aws_iam_policy.baseline_logs.arn
-}
-
-resource "aws_ecs_task_definition" "baseline" {
-  family                   = "${var.stack_name}-newboots-baseline"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = var.task_cpu
-  memory                   = var.task_memory
-  execution_role_arn       = aws_iam_role.task_execution_role.arn
-  task_role_arn            = aws_iam_role.baseline_task_role.arn
-
-  container_definitions = jsonencode([
-    {
-      name      = "newboots"
-      image     = var.container_image
-      essential = true
-      portMappings = [
-        {
-          containerPort = var.container_port
-        },
-        {
-          containerPort = 9090
-        }
-      ]
-      environment = [
-        {
-          name  = "SERVER_PORT"
-          value = tostring(var.container_port)
-        },
-        {
-          name  = "SPRING_PROFILES_ACTIVE"
-          value = var.environment
-        }
-      ]
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.baseline.name
-          awslogs-region        = data.aws_region.current.name
-          awslogs-stream-prefix = "baseline"
-        }
-      }
-      healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}/actuator/health || exit 1"]
-        interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 60
-      }
-      secrets = var.google_application_credentials == "" ? [] : [
-        {
-          name      = "GOOGLE_APPLICATION_CREDENTIALS_JSON"
-          valueFrom = "arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:newboots-google-credentials"
-        }
-      ]
-    }
-  ])
-}
-
-resource "aws_lb_target_group" "baseline" {
-  name        = "${var.stack_name}-tg-baseline"
-  port        = var.container_port
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
-
-  health_check {
-    path = "/actuator/health"
-  }
-}
-
-resource "aws_lb_target_group" "grpc" {
-  name        = "${var.stack_name}-tg-grpc"
-  port        = 9090
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
-
-  health_check {
-    protocol = "HTTP"
-    path     = "/"
-    port     = "9090"
-  }
-}
-
-resource "aws_ecs_service" "baseline" {
-  name            = "${var.stack_name}-baseline"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.baseline.arn
-  desired_count   = var.desired_count
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets         = var.subnet_ids
-    security_groups = [aws_security_group.ecs.id]
-    assign_public_ip = false
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.baseline.arn
-    container_name   = "newboots"
-    container_port   = var.container_port
-  }
-  load_balancer {
-    target_group_arn = aws_lb_target_group.grpc.arn
-    container_name   = "newboots"
-    container_port   = 9090
-  }
-
-  deployment_circuit_breaker {
-    enable   = true
-    rollback = true
-  }
 }
 
 #---------------------------------------------------------------------------
@@ -585,13 +472,11 @@ resource "aws_ecs_task_definition" "sidecar" {
       essential = true
       portMappings = [
         {
-          containerPort = 8080
-          hostPort      = 8080
-          protocol      = "tcp"
+          containerPort = 9090
         }
       ]
       environment = [
-        { name = "SERVER_PORT", value = "8080" },
+        { name = "SERVER_PORT", value = "9090" },
         { name = "SSL_CERT_FILE", value = "/etc/ssl/speedscale/tls.crt" },
         { name = "HTTP_PROXY", value = "http://localhost:4140" },
         { name = "SPRING_PROFILES_ACTIVE", value = "development" },
@@ -624,7 +509,7 @@ resource "aws_ecs_task_definition" "sidecar" {
         }
       }
       healthCheck = {
-        command  = ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+        command  = ["CMD-SHELL", "curl -f http://localhost:9090/ || exit 1"]
         interval = 30
         timeout  = 5
         retries  = 3
@@ -634,48 +519,31 @@ resource "aws_ecs_task_definition" "sidecar" {
   ])
 }
 
-resource "aws_lb_target_group" "sidecar" {
-  name        = "${var.stack_name}-tg-sidecar"
-  port        = var.container_port
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
+resource "aws_ecs_service" "baseline" {
+  name            = "${var.stack_name}-baseline"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.sidecar.arn
+  desired_count   = var.desired_count
+  launch_type     = "FARGATE"
 
-  health_check {
-    path = "/actuator/health"
-  }
-}
-
-resource "aws_lb_listener_rule" "sidecar" {
-  listener_arn = aws_lb_listener.http.arn
-  priority     = 1
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.sidecar.arn
+  network_configuration {
+    subnets         = var.subnet_ids
+    security_groups = [aws_security_group.ecs.id]
+    assign_public_ip = false
   }
 
-  condition {
-    path_pattern {
-      values = ["/sidecar*"]
-    }
-  }
-}
-
-resource "aws_lb_listener_rule" "grpc" {
-  listener_arn = aws_lb_listener.http.arn
-  priority     = 10
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.grpc.arn
+  load_balancer {
+    target_group_arn = aws_lb_target_group.baseline_grpc.arn
+    container_name   = "newboots"
+    container_port   = 9090
   }
 
-  condition {
-    path_pattern {
-      values = ["/grpc*"]
-    }
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
   }
+
+  depends_on = [aws_lb_listener.baseline_http]
 }
 
 resource "aws_ecs_service" "sidecar" {
@@ -692,9 +560,9 @@ resource "aws_ecs_service" "sidecar" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.sidecar.arn
+    target_group_arn = aws_lb_target_group.sidecar_grpc.arn
     container_name   = "newboots"
-    container_port   = var.container_port
+    container_port   = 9090
   }
 
   deployment_circuit_breaker {
@@ -702,5 +570,5 @@ resource "aws_ecs_service" "sidecar" {
     rollback = true
   }
 
-  depends_on = [aws_ecs_service.forwarder]
+  depends_on = [aws_lb_listener.sidecar_http]
 } 
