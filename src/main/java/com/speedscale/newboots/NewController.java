@@ -13,29 +13,49 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.speedscale.model.Location;
 
+/**
+ * Main controller for HTTP endpoints.
+ */
 @RestController
-public class NewController {
-
-    static Logger logger = LoggerFactory.getLogger(NewController.class);
-    
-    private static final String template = "Hello, %s!";
+public final class NewController {
+    /** Logger for this class. */
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(NewController.class);
+    /** Template for greeting messages. */
+    private static final String TEMPLATE = "Hello, %s!";
+    /** Counter for greetings. */
     private final AtomicLong counter = new AtomicLong();
 
+    /**
+     * Home endpoint.
+     *
+     * @return a simple spring message
+     */
     @GetMapping("/")
     public String home() {
-        String rspBody = "{\"spring\": \"is here\"}";
-        return rspBody;
+        return "{ \"spring\": \"is here\" }";
     }
 
+    /**
+     * Health check endpoint.
+     *
+     * @return a health message
+     */
     @GetMapping("/healthz")
     public String health() {
-        String rspBody = "{\"health\": \"health\"}";
-        return rspBody;
+        return "{ \"health\": \"health\" }";
     }
 
+    /**
+     * Greeting endpoint.
+     *
+     * @param name the name to greet
+     * @return a greeting message
+     */
     @GetMapping("/greeting")
-    public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
+    public String greeting(@RequestParam(value = "name", defaultValue = "World")
+            final String name) {
+        return String.format(TEMPLATE, name);
     }
 
     @GetMapping("/nasa")
@@ -44,7 +64,7 @@ public class NewController {
         try {
             rspBody = NasaHelper.invoke();
         } catch (Exception e) {
-            logger.error("Exception calling nasa", e);
+            LOGGER.error("Exception calling nasa", e);
             rspBody = "{\"exception\": \"" + e.getMessage() + "\"}";
         }
         return rspBody;
@@ -56,7 +76,7 @@ public class NewController {
         try {
             rspBody = SpaceXHelper.invoke();
         } catch (Exception e) {
-            logger.error("Exception calling SpaceX", e);
+            LOGGER.error("Exception calling SpaceX", e);
             rspBody = "{\"exception\": \"" + e.getMessage() + "\"}";
         }
         return rspBody;
@@ -64,32 +84,42 @@ public class NewController {
 
     @PostMapping("/location")
     @ResponseBody
-    Location location(@RequestBody Location loc) {
+    Location location(@RequestBody final Location loc) {
         return loc;
     }
 
     @GetMapping("/zip")
-    String zip(@RequestParam(value = "filename", required = false) String filename) {
+    String zip(@RequestParam(value = "filename", required = false)
+            final String filename) {
         String rspBody = "{}";
         try {
             rspBody = ZipHelper.invoke(filename);
         } catch (Exception e) {
-            logger.error("Exception processing zip file", e);
+            LOGGER.error("Exception processing zip file", e);
             rspBody = "{\"exception\": \"" + e.getMessage() + "\"}";
         }
         return rspBody;
     }
 
+    /**
+     * Converts a number to words and returns a JSON response.
+     *
+     * @param number the number to convert
+     * @return a JSON string with the number and its word representation
+     */
     @GetMapping("/number-to-words")
-    public String numberToWords(@RequestParam(value = "number") int number) {
+    public String numberToWords(
+            @RequestParam(value = "number") final int number) {
         String rspBody;
         try {
-            String words = NumberConversionHelper.numberToWords(number);
-            rspBody = String.format("{\"number\": %d, \"words\": \"%s\"}", number, words.replaceAll("\"", "\\\""));
+            String words = NumberConversionHelper.convertNumberToWords(number);
+            rspBody = String.format(
+                "{\"number\": %d, \"words\": \"%s\"}",
+                number, words.replaceAll("\"", "\\\""));
         } catch (Exception e) {
-            logger.error("Exception calling numberToWords", e);
+            LOGGER.error("Exception calling numberToWords", e);
             rspBody = String.format("{\"exception\": \"%s\"}", e.getMessage());
         }
         return rspBody;
     }
-} 
+}

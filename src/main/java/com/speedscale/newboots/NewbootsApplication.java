@@ -1,21 +1,45 @@
 // src/main/java/com/speedscale/newboots/NewbootsApplication.java
 package com.speedscale.newboots;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan; // Import ComponentScan
 import net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration;
 
+/**
+ * Main application entry point for Newboots.
+ */
 @SpringBootApplication
 @ImportAutoConfiguration(GrpcServerAutoConfiguration.class)
 // Add the package where your generated gRPC classes reside
-// This tells Spring to scan both your main application package AND the generated gRPC package
-@ComponentScan(basePackages = {"com.speedscale.newboots", "com.speedscale.grpc"})
-public class NewbootsApplication {
+// This tells Spring to scan both your main application package
+// AND the generated gRPC package
+@ComponentScan(basePackages = {
+    "com.speedscale.newboots",
+    "com.speedscale.grpc"
+})
+public final class NewbootsApplication {
+    /** Logger for this class. */
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(NewbootsApplication.class);
 
-    public static void main(String[] args) {
-        SpringApplication.run(NewbootsApplication.class, args);
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private NewbootsApplication() {
+        // Utility class
     }
 
+    /**
+     * Main method to start the Spring Boot application.
+     *
+     * @param args the command line arguments
+     */
+    public static void main(final String[] args) {
+        SpringApplication.run(NewbootsApplication.class, args);
+    }
 }
+
