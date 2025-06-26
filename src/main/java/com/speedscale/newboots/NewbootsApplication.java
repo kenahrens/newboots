@@ -21,17 +21,10 @@ import net.devh.boot.grpc.server.autoconfigure.GrpcServerAutoConfiguration;
     "com.speedscale.newboots",
     "com.speedscale.grpc"
 })
-public final class NewbootsApplication {
+public class NewbootsApplication {
     /** Logger for this class. */
     private static final Logger LOGGER =
         LoggerFactory.getLogger(NewbootsApplication.class);
-
-    /**
-     * Private constructor to prevent instantiation.
-     */
-    private NewbootsApplication() {
-        // Utility class
-    }
 
     /**
      * Main method to start the Spring Boot application.
