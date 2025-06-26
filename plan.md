@@ -6,6 +6,8 @@ This project is a Java 17 microservice built with Spring Boot 3.2.3. It exposes 
 ## Rules
 * Check your own work through unit tests, integration tests
 * When something is done move that item to a DONE list in this file
+* **Always run `mvn checkstyle:check` before committing and pushing code to ensure there are no Checkstyle violations.**
+
 
 ## Architecture
 - **Spring Boot**: Main application entry in `NewbootsApplication.java`.
