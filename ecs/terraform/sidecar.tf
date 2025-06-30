@@ -138,6 +138,11 @@ resource "aws_ecs_task_definition" "sidecar" {
           containerPort = 4140
           hostPort      = 4140
           protocol      = "tcp"
+        },
+        {
+          containerPort = 4144
+          hostPort      = 4144
+          protocol      = "tcp"
         }
       ]
       environment = [
@@ -175,7 +180,7 @@ resource "aws_ecs_task_definition" "sidecar" {
         }
       }
       healthCheck = {
-        command  = ["CMD-SHELL", "curl -f http://localhost:4143/ || exit 1"]
+        command  = ["CMD-SHELL", "curl -f http://localhost:4144/healthz || exit 1"]
         interval = 30
         timeout  = 5
         retries  = 3
