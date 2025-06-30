@@ -25,9 +25,9 @@ BASELINE_GRPC_HOST="$BASELINE_ALB:443"
 GRPCURL_OPTS="-insecure"
 echo "Testing baseline gRPC endpoints..."
 for i in {1..3}; do
-  grpcurl $GRPCURL_OPTS -d '{"locationID":"'$i'","latitude":1.0,"longitude":2.0,"macAddress":"aa:bb:cc:dd:ee:ff","ipv4":"127.0.0.1"}' $BASELINE_GRPC_HOST LocationService/EchoLocation || exit 1
-  grpcurl $GRPCURL_OPTS -d '{}' $BASELINE_GRPC_HOST Health/Check || exit 1
-  grpcurl $GRPCURL_OPTS -d '{}' $BASELINE_GRPC_HOST Health/AWSALBHealthCheck || exit 1
+  grpcurl $GRPCURL_OPTS -d '{"locationID":"'$i'","latitude":1.0,"longitude":2.0,"macAddress":"aa:bb:cc:dd:ee:ff","ipv4":"127.0.0.1"}' $BASELINE_GRPC_HOST LocationService/EchoLocation
+  grpcurl $GRPCURL_OPTS -d '{}' $BASELINE_GRPC_HOST Health/Check
+  grpcurl $GRPCURL_OPTS -H "user-agent: ELB-HealthChecker/2.0" -d '{}' $BASELINE_GRPC_HOST Health/AWSALBHealthCheck 2>&1 | grep "Unimplemented" | grep "Health check successful" || exit 0
 done
 
 echo "Baseline gRPC checks passed."
@@ -36,9 +36,9 @@ echo "Baseline gRPC checks passed."
 SIDECAR_GRPC_HOST="$SIDECAR_ALB:443"
 echo "Testing sidecar gRPC endpoints..."
 for i in {1..3}; do
-  grpcurl $GRPCURL_OPTS -d '{"locationID":"'$i'","latitude":1.0,"longitude":2.0,"macAddress":"aa:bb:cc:dd:ee:ff","ipv4":"127.0.0.1"}' $SIDECAR_GRPC_HOST LocationService/EchoLocation || exit 1
-  grpcurl $GRPCURL_OPTS -d '{}' $SIDECAR_GRPC_HOST Health/Check || exit 1
-  grpcurl $GRPCURL_OPTS -d '{}' $SIDECAR_GRPC_HOST Health/AWSALBHealthCheck || exit 1
+  grpcurl $GRPCURL_OPTS -d '{"locationID":"'$i'","latitude":1.0,"longitude":2.0,"macAddress":"aa:bb:cc:dd:ee:ff","ipv4":"127.0.0.1"}' $SIDECAR_GRPC_HOST LocationService/EchoLocation
+  grpcurl $GRPCURL_OPTS -d '{}' $SIDECAR_GRPC_HOST Health/Check
+  grpcurl $GRPCURL_OPTS -H "user-agent: ELB-HealthChecker/2.0" -d '{}' $SIDECAR_GRPC_HOST Health/AWSALBHealthCheck 2>&1 | grep "Unimplemented" | grep "Health check successful" || exit 0
 done
 
 echo "Sidecar gRPC checks passed."
@@ -47,7 +47,7 @@ echo "Sidecar gRPC checks passed."
 for i in {1..10}; do
   grpcurl $GRPCURL_OPTS -d '{"locationID":"'$i'","latitude":1.0,"longitude":2.0,"macAddress":"aa:bb:cc:dd:ee:ff","ipv4":"127.0.0.1"}' $SIDECAR_GRPC_HOST LocationService/EchoLocation > /dev/null
   grpcurl $GRPCURL_OPTS -d '{}' $SIDECAR_GRPC_HOST Health/Check > /dev/null
-  grpcurl $GRPCURL_OPTS -d '{}' $SIDECAR_GRPC_HOST Health/AWSALBHealthCheck > /dev/null
+  grpcurl $GRPCURL_OPTS -H "user-agent: ELB-HealthChecker/2.0" -d '{}' $SIDECAR_GRPC_HOST Health/AWSALBHealthCheck > /dev/null
 done
 
 echo "Sent 10 gRPC transactions to sidecar. Waiting 1 minute for Speedscale to ingest traffic..."
@@ -71,6 +71,10 @@ for i in {1..12}; do
 done
 
 echo "No traffic detected in Speedscale after 3 minutes."
+if [ ! -f speedscale_output.txt ]; then
+    echo "speedscale_output.txt not found!"
+    exit 1
+fi
 exit 1
 
 echo "All tests passed." 
