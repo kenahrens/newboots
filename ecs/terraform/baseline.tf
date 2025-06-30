@@ -36,12 +36,14 @@ resource "aws_lb" "baseline" {
 resource "aws_lb_target_group" "baseline_grpc" {
   name        = "${var.stack_name}-tg-baseline-grpc"
   port        = 9090
-  protocol    = "TCP"
+  protocol    = "HTTP"
+  protocol_version = "GRPC"
   vpc_id      = var.vpc_id
   target_type = "ip"
   health_check {
-    protocol = "TCP"
-    port     = "9090"
+    protocol = "HTTP"
+    path     = "/Health/Check"
+    matcher  = "0-12"
   }
 }
 
