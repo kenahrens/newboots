@@ -35,7 +35,7 @@ This project is a Java 17 microservice built with Spring Boot 3.2.3. It exposes 
 ## Build & Run Instructions
 - **Build JAR**: `make jar` (runs `mvn clean package`)
 - **Run Locally**: `make run` (runs `mvn spring-boot:run`)
-- **Docker Images**: `make docker`
+- **Docker Images**: `make docker` (Note: Docker images are built and pushed by the GitHub Actions pipeline, not locally)
 - **Kubernetes Deploy**: `make deploy`
 - **Infrastructure as Code**: We use [Tofu](https://opentofu.org/) (not Terraform) for managing infrastructure in the `ecs/terraform` directory. Use `tofu plan` and `tofu apply` instead of Terraform commands.
 - **AWS CLI**: When using the AWS CLI, you must set `AWS_PAGER=""` and use the `--profile demo` flag.

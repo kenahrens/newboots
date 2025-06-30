@@ -41,8 +41,9 @@ resource "aws_lb_target_group" "baseline_grpc" {
   vpc_id      = var.vpc_id
   target_type = "ip"
   health_check {
-    protocol = "TCP"
-    port     = "9090"
+    protocol = "HTTP"
+    path     = "/grpc.health.v1.Health/Check"
+    matcher  = "0-12"
   }
 }
 
