@@ -22,11 +22,10 @@ public final class AwsAlbGrpcHealthService extends HealthGrpc.HealthImplBase {
     public void aWSALBHealthCheck(final HealthCheckRequest request,
             final StreamObserver<HealthCheckResponse> responseObserver) {
         // AWS ALB expects gRPC status code 12 (UNIMPLEMENTED) for health check
-        // But to indicate healthy, we return SERVING status in the response
-        HealthCheckResponse response = HealthCheckResponse.newBuilder()
-            .setStatus("SERVING").build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        // to indicate that the target is healthy.
+        responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
+            .withDescription("Health check successful")
+            .asRuntimeException());
     }
 
     /**
