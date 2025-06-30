@@ -52,6 +52,7 @@ This project is a Java 17 microservice built with Spring Boot 3.2.3. It exposes 
 
 ## ECS Deployment Notes
 * In the ECS deployment, only the gRPC port (9090) is exposed. HTTP endpoints on port 8080 are not accessible from the ALB. Therefore, health checks must use the gRPC health endpoints.
+* The sidecar pattern is implemented based on the Speedscale documentation: https://docs.speedscale.com/setup/install/ecs/
 
 ## Validation for ECS
 * Check that the goproxy LOG_LEVEL is set to debug
