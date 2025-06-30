@@ -11,7 +11,7 @@ resource "aws_ecs_task_definition" "forwarder" {
   container_definitions = jsonencode([
     {
       name      = "forwarder"
-      image     = "gcr.io/speedscale/forwarder:v1.6.1"
+      image     = "gcr.io/speedscale/forwarder:v2.3.586"
       cpu       = 0
       essential = true
       portMappings = [
