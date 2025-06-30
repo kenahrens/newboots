@@ -116,12 +116,6 @@ resource "aws_ecs_task_definition" "baseline" {
           awslogs-stream-prefix = "ecs"
         }
       }
-      healthCheck = {
-        command  = ["CMD-SHELL", "curl -f http://localhost:9090/ || exit 1"]
-        interval = 30
-        timeout  = 5
-        retries  = 3
-      }
       systemControls = []
     }
   ])
