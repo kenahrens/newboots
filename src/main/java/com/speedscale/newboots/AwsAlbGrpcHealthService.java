@@ -40,6 +40,7 @@ public final class AwsAlbGrpcHealthService extends HealthGrpc.HealthImplBase {
     @Override
     public void check(final HealthCheckRequest request,
             final StreamObserver<HealthCheckResponse> responseObserver) {
+        log.info("Received standard health check request");
         HealthCheckResponse response = HealthCheckResponse.newBuilder()
             .setStatus("SERVING").build();
         responseObserver.onNext(response);
