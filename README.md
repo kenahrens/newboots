@@ -21,6 +21,11 @@ A Spring Boot microservice application built with Spring Boot 3.2.3 and Java 17.
 - `POST /location` - Accepts and returns location data
 - `GET /number-to-words?number={number}` - Converts a number to words using a SOAP API
 
+### gRPC (port 9090)
+- `LocationService/EchoLocation(Location) -> Location`
+- `Health/Check(HealthCheckRequest) -> HealthCheckResponse`
+- `Health/AWSALBHealthCheck(HealthCheckRequest) -> HealthCheckResponse`
+
 ## Prerequisites
 
 - Java 17 or higher
@@ -54,6 +59,9 @@ curl http://localhost:8080/
 # Health check
 curl http://localhost:8080/healthz
 
+# Greeting endpoint
+curl http://localhost:8080/greeting?name=World
+
 # NASA data
 curl http://localhost:8080/nasa
 
@@ -65,6 +73,27 @@ curl http://localhost:8080/zip
 
 # ZIP processing with specific file
 curl http://localhost:8080/zip?filename=jquery
+
+# POST location data
+curl -X POST -H "Content-Type: application/json" -d '{"latitude": 1.0, "longitude": 2.0, "macAddress": "aa:bb:cc:dd:ee:ff", "ipv4": "127.0.0.1"}' http://localhost:8080/location
+
+# Number to words
+curl http://localhost:8080/number-to-words?number=123
+```
+
+### Testing the gRPC Endpoints
+
+You can use a gRPC client such as `grpcurl` to test the gRPC endpoints.
+
+```bash
+# EchoLocation
+grpcurl -d '{"latitude": 1.0, "longitude": 2.0, "macAddress": "aa:bb:cc:dd:ee:ff", "ipv4": "127.0.0.1"}' -plaintext localhost:9090 LocationService/EchoLocation
+
+# HealthCheck
+grpcurl -plaintext localhost:9090 Health/Check
+
+# AWSALBHealthCheck
+grpcurl -plaintext localhost:9090 Health/AWSALBHealthCheck
 ```
 
 ## Configuration
