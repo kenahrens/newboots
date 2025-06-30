@@ -42,8 +42,8 @@ resource "aws_lb_target_group" "sidecar_grpc" {
   target_type = "ip"
   health_check {
     protocol = "HTTP"
-    path     = "/grpc.health.v1.Health/Check"
-    port     = "4143"
+    path     = "/Health/Check"
+    matcher  = "0-12"
   }
 }
 

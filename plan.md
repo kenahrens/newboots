@@ -55,6 +55,9 @@ This project is a Java 17 microservice built with Spring Boot 3.2.3. It exposes 
 * The sidecar pattern is implemented based on the Speedscale documentation: https://docs.speedscale.com/setup/install/ecs/
 
 ## Validation for ECS
+* After a `tofu apply` and forcing a new deployment, wait at least 60-90 seconds for the new task to stabilize.
+* Use `aws ecs list-tasks` to find the ARN of the new, running task.
+* Use `aws ecs describe-tasks` with the task ARN to get the correct log stream name for the container.
 * Check that the goproxy LOG_LEVEL is set to debug
 * Make sure that the latest version is running, force restart the ECS if necessary
 * Send some test transactions

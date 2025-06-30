@@ -22,7 +22,13 @@ resource "aws_ecs_task_definition" "forwarder" {
       environment = [
         { name = "SPEEDSCALE_APP_URL", value = var.speedscale_app_url },
         { name = "GRPC_PORT", value = "8888" },
-        { name = "LOG_LEVEL", value = "debug" }
+        { name = "LOG_LEVEL", value = "debug" },
+        { name = "SUB_TENANT_NAME", value = var.speedscale_sub_tenant_name },
+        { name = "SUB_TENANT_STREAM", value = var.speedscale_sub_tenant_stream },
+        { name = "TENANT_BUCKET", value = var.speedscale_tenant_bucket },
+        { name = "TENANT_NAME", value = var.speedscale_tenant_name },
+        { name = "TENANT_ID", value = var.speedscale_tenant_id },
+        { name = "TENANT_REGION", value = var.speedscale_tenant_region }
       ],
       secrets = [
         {
