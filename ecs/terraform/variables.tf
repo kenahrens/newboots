@@ -16,7 +16,7 @@ variable "public_subnet_ids" {
 variable "container_image" {
   description = "Docker image URI for the newboots application"
   type        = string
-  default     = "ghcr.io/kenahrens/newboots:latest"
+  default     = "ghcr.io/kenahrens/newboots-server:latest"
 }
 
 variable "container_port" {
