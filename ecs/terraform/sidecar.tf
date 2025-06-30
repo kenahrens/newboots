@@ -80,6 +80,32 @@ resource "aws_iam_role_policy_attachment" "sidecar_task_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_policy" "secrets_policy" {
+  name        = "newboots-ecs-secrets-policy"
+  description = "Allows ECS tasks to read secrets from Secrets Manager"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Effect   = "Allow"
+        Resource = [
+          "arn:aws:secretsmanager:us-east-1:763455676074:secret:newboots-tls-cert*",
+          "arn:aws:secretsmanager:us-east-1:763455676074:secret:newboots-tls-key*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "sidecar_secrets_policy_attachment" {
+  role       = aws_iam_role.sidecar_task_role.name
+  policy_arn = aws_iam_policy.secrets_policy.arn
+}
+
 resource "aws_ecs_task_definition" "sidecar" {
   family                   = "${var.stack_name}-newboots-sidecar"
   network_mode             = "awsvpc"
