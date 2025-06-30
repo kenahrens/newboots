@@ -101,7 +101,7 @@ resource "aws_ecs_task_definition" "baseline" {
         }
       ]
       environment = [
-        { name = "SERVER_PORT", value = "9090" },
+        { name = "SERVER_PORT", value = "8080" },
         { name = "SSL_CERT_FILE", value = "/etc/ssl/speedscale/tls.crt" },
         { name = "SPRING_PROFILES_ACTIVE", value = "development" }
       ]

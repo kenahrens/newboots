@@ -187,7 +187,7 @@ resource "aws_ecs_task_definition" "sidecar" {
         }
       ]
       environment = [
-        { name = "SERVER_PORT", value = "9090" },
+        { name = "SERVER_PORT", value = "8080" },
         { name = "SSL_CERT_FILE", value = "/etc/ssl/speedscale/tls.crt" },
         { name = "HTTP_PROXY", value = "http://localhost:4140" },
         { name = "SPRING_PROFILES_ACTIVE", value = "development" },
@@ -218,12 +218,6 @@ resource "aws_ecs_task_definition" "sidecar" {
           awslogs-region        = "us-east-1"
           awslogs-stream-prefix = "ecs"
         }
-      }
-      healthCheck = {
-        command  = ["CMD-SHELL", "curl -f http://localhost:9090/ || exit 1"]
-        interval = 30
-        timeout  = 5
-        retries  = 3
       }
       systemControls = []
     }
