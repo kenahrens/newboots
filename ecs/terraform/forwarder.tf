@@ -20,11 +20,16 @@ resource "aws_ecs_task_definition" "forwarder" {
         }
       ]
       environment = [
-        { name = "SPEEDSCALE_API_KEY", value = var.speedscale_api_key_secret_arn },
         { name = "SPEEDSCALE_APP_URL", value = var.speedscale_app_url },
         { name = "GRPC_PORT", value = "8888" },
         { name = "LOG_LEVEL", value = "debug" }
-      ]
+      ],
+      secrets = [
+        {
+          name      = "SPEEDSCALE_API_KEY"
+          valueFrom = var.speedscale_api_key_secret_arn
+        }
+      ],
       logConfiguration = {
         logDriver = "awslogs"
         options = {
