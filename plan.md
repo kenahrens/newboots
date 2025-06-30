@@ -75,3 +75,8 @@ This project is a Java 17 microservice built with Spring Boot 3.2.3. It exposes 
 * Review Kubernetes manifests for correctness (added gRPC port 9090 to Deployment and Service)
 * Review ECS deployment (Terraform) for correctness
 * Investigate and fix the unimplemented gRPC Health/Check endpoint (now implemented and passing tests)
+* Fix the `newboots-ecs-tg-baseline-grpc` target group health checks
+* Fix the `newboots-ecs-tg-sidecar-grpc` target group health checks
+* Fix the forwarder authentication error
+* Fix the goproxy to forwarder connection timeout
+* Correctly handle the `AWSALBHealthCheck` endpoint in the test script

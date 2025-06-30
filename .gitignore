@@ -31,3 +31,6 @@ target/
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup
+
+# Script log file
+speedscale_output.txt

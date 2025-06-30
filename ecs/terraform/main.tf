@@ -50,6 +50,12 @@ resource "aws_security_group" "ecs" {
     to_port         = 4143
     security_groups = [aws_security_group.alb_sidecar.id]
   }
+  ingress {
+    protocol        = "tcp"
+    from_port       = 8888
+    to_port         = 8888
+    self            = true
+  }
   egress {
     from_port   = 0
     to_port     = 0

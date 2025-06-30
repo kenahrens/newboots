@@ -28,7 +28,8 @@ resource "aws_ecs_task_definition" "forwarder" {
         { name = "TENANT_BUCKET", value = var.speedscale_tenant_bucket },
         { name = "TENANT_NAME", value = var.speedscale_tenant_name },
         { name = "TENANT_ID", value = var.speedscale_tenant_id },
-        { name = "TENANT_REGION", value = var.speedscale_tenant_region }
+        { name = "TENANT_REGION", value = var.speedscale_tenant_region },
+        { name = "CLUSTER_NAME", value = aws_ecs_cluster.main.name }
       ],
       secrets = [
         {
