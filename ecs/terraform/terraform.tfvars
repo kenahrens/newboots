@@ -1,7 +1,7 @@
 vpc_id = "vpc-093bd38bfca719dbe"
 subnet_ids = ["subnet-07ff062d801149189"]
 public_subnet_ids = ["subnet-0a6eb2e5785095fe7", "subnet-0e00490e656f9c960", "subnet-043e773b32dd9bab6"]
-container_image = "ghcr.io/kenahrens/newboots:latest"
+container_image = "ghcr.io/kenahrens/newboots-server:latest"
 container_port = 8080
 desired_count = 2
 task_cpu = "512"
