@@ -12,7 +12,11 @@ import net.devh.boot.grpc.server.service.GrpcService;
  */
 @GrpcService
 public final class AwsAlbGrpcHealthService extends HealthGrpc.HealthImplBase {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AwsAlbGrpcHealthService.class);
+    /**
+     * Logger for this class.
+     */
+    private static final org.slf4j.Logger LOGGER =
+        org.slf4j.LoggerFactory.getLogger(AwsAlbGrpcHealthService.class);
 
     /**
      * Handles AWS ALB health check requests.
@@ -23,7 +27,7 @@ public final class AwsAlbGrpcHealthService extends HealthGrpc.HealthImplBase {
     @Override
     public void aWSALBHealthCheck(final HealthCheckRequest request,
             final StreamObserver<HealthCheckResponse> responseObserver) {
-        log.info("Received health check request");
+        LOGGER.info("Received health check request");
         // AWS ALB expects gRPC status code 12 (UNIMPLEMENTED) for health check
         // to indicate that the target is healthy.
         responseObserver.onError(io.grpc.Status.UNIMPLEMENTED
@@ -40,7 +44,7 @@ public final class AwsAlbGrpcHealthService extends HealthGrpc.HealthImplBase {
     @Override
     public void check(final HealthCheckRequest request,
             final StreamObserver<HealthCheckResponse> responseObserver) {
-        log.info("Received standard health check request");
+        LOGGER.info("Received standard health check request");
         HealthCheckResponse response = HealthCheckResponse.newBuilder()
             .setStatus("SERVING").build();
         responseObserver.onNext(response);
