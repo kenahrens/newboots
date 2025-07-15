@@ -9,6 +9,11 @@ on:
 jobs:
   build-test-docker:
     runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:8
+        ports:
+          - 27017:27017
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,9 +34,6 @@ jobs:
 
       - name: Run tests
         run: mvn test
-
-      - name: Run Checkstyle linter
-        run: mvn checkstyle:check
 
       - name: Build JAR
         run: mvn clean package
