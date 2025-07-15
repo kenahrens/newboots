@@ -46,6 +46,8 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
+            - name: MONGODB_URI
+              value: "mongodb://mongo:27017/newboots"
           envFrom:
             - configMapRef:
                 name: newboots-server 

@@ -20,6 +20,7 @@ A Spring Boot microservice application built with Spring Boot 3.2.3 and Java 17.
 - `GET /zip?filename={filename}` - Processes ZIP files (optional filename parameter)
 - `POST /location` - Accepts and returns location data
 - `GET /number-to-words?number={number}` - Converts a number to words using a SOAP API
+- `GET /inventory/search?key={key}&value={value}` - Searches inventory for documents where the given key equals the given value
 
 ### gRPC (port 9090)
 - `LocationService/EchoLocation(Location) -> Location`
@@ -114,3 +115,15 @@ Configuration can be modified in `src/main/resources/application.properties`.
 - Apache HTTP Client 5
 - Apache Commons IO
 - Jackson for JSON processing 
+
+## MongoDB Requirement
+
+This service requires a MongoDB instance. By default, it connects to `mongodb://mongo:27017/newboots`.
+
+To override the connection string, set the `MONGODB_URI` environment variable:
+
+```bash
+export MONGODB_URI="mongodb://localhost:27017/newboots"
+```
+
+The application will automatically initialize the `inventory` collection with sample data if it is empty. 

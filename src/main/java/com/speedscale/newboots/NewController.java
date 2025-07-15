@@ -12,6 +12,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.speedscale.model.Location;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.ResponseEntity;
+import java.util.List;
 
 /**
  * Main controller for HTTP endpoints.
@@ -25,6 +31,11 @@ public final class NewController {
     private static final String TEMPLATE = "Hello, %s!";
     /** Counter for greetings. */
     private final AtomicLong counter = new AtomicLong();
+
+    @Autowired
+    private InventoryRepository inventoryRepository;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     /**
      * Home endpoint.
@@ -99,6 +110,30 @@ public final class NewController {
             rspBody = "{\"exception\": \"" + e.getMessage() + "\"}";
         }
         return rspBody;
+    }
+
+    @GetMapping("/inventory/search")
+    public ResponseEntity<?> searchInventory(@RequestParam String key, @RequestParam String value) {
+        try {
+            Query query = new Query();
+            query.addCriteria(Criteria.where(key).is(convertValue(key, value)));
+            List<Inventory> results = mongoTemplate.find(query, Inventory.class);
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            LOGGER.error("Error searching inventory", e);
+            return ResponseEntity.badRequest().body("Invalid key or value");
+        }
+    }
+
+    private Object convertValue(String key, String value) {
+        // Try to convert value to number if key is qty or size.h/size.w
+        if ("qty".equals(key)) {
+            try { return Integer.parseInt(value); } catch (Exception ignored) {}
+        }
+        if (key.startsWith("size.")) {
+            try { return Double.parseDouble(value); } catch (Exception ignored) {}
+        }
+        return value;
     }
 
     /**
