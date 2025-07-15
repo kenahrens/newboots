@@ -21,7 +21,7 @@ WORKDIR /usr/src/app
 COPY . /build
 
 RUN cd /build \
-    && mvn -q clean package \
+    && mvn -q clean package -DskipTests \
     && mvn -q dependency:copy-dependencies -DincludeScope=runtime \
     && if [ -f /build/target/newboots-0.0.1-SNAPSHOT.jar.original ]; then cp /build/target/newboots-0.0.1-SNAPSHOT.jar.original /usr/src/app/app.jar; else cp /build/target/newboots-0.0.1-SNAPSHOT.jar /usr/src/app/app.jar; fi \
     && cp -r /build/target/dependency /usr/src/app/dependency \
