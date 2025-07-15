@@ -120,6 +120,10 @@
 			<version>1.62.2</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -149,6 +153,10 @@
 				<version>0.6.1</version>
 				<configuration>
 					<protocArtifact>com.google.protobuf:protoc:3.25.3:exe:${os.detected.classifier}</protocArtifact>
+					<pluginId>grpc-java</pluginId>
+					<pluginArtifact>io.grpc:protoc-gen-grpc-java:1.62.2:exe:${os.detected.classifier}</pluginArtifact>
+					<addSources>true</addSources>
+					<addTestSources>true</addTestSources>
 				</configuration>
 				<executions>
 					<execution>

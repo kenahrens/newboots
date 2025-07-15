@@ -1,7 +1,8 @@
 @local_host = http://localhost:8080
+@proxymock_host = http://localhost:4143
 @ecs_host = http://newboots-ecs-alb-1410550651.us-east-1.elb.amazonaws.com
 
-@host = {{ecs_host}}
+@host = {{proxymock_host}}
 # @host = {{local_host}}
 
 ### Home endpoint
@@ -47,4 +48,20 @@ Accept: application/json
 
 ### Number to words conversion
 GET {{host}}/number-to-words?number=123
+Accept: application/json
+
+### Inventory search by item
+GET {{host}}/inventory/search?key=item&value=journal
+Accept: application/json
+
+### Inventory search by qty
+GET {{host}}/inventory/search?key=qty&value=25
+Accept: application/json
+
+### Inventory search by status
+GET {{host}}/inventory/search?key=status&value=A
+Accept: application/json
+
+### Inventory search by size.h (height)
+GET {{host}}/inventory/search?key=size.h&value=14
 Accept: application/json

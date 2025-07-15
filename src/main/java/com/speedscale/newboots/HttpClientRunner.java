@@ -103,4 +103,12 @@ public final class HttpClientRunner {
             cycle++;
         }
     }
+
+    /**
+     * Main entry point for Java application.
+     * @param args the arguments
+     */
+    public static void main(String[] args) throws Exception {
+        run(args);
+    }
 }
