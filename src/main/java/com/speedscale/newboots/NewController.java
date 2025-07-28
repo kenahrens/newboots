@@ -36,6 +36,8 @@ public final class NewController {
     private InventoryRepository inventoryRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private PetRepository petRepository;
 
     /**
      * Home endpoint.
@@ -156,5 +158,28 @@ public final class NewController {
             rspBody = String.format("{\"exception\": \"%s\"}", e.getMessage());
         }
         return rspBody;
+    }
+
+    /**
+     * Gets pet breeds based on the provided pet type (e.g., dog, cat).
+     *
+     * @param type the type of pet (e.g., dog, cat, bird)
+     * @return a list of pet breeds for the specified type
+     */
+    @GetMapping("/pets/types")
+    public ResponseEntity<List<Pet>> getPetBreeds(
+            @RequestParam(value = "type", required = false) final String type) {
+        try {
+            List<Pet> pets;
+            if (type != null && !type.trim().isEmpty()) {
+                pets = petRepository.findBySpeciesIgnoreCase(type.trim());
+            } else {
+                pets = petRepository.findAll();
+            }
+            return ResponseEntity.ok(pets);
+        } catch (Exception e) {
+            LOGGER.error("Exception calling getPetBreeds", e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

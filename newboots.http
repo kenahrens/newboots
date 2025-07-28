@@ -62,6 +62,18 @@ Accept: application/json
 GET {{host}}/inventory/search?key=status&value=A
 Accept: application/json
 
+### Pet types (all breeds)
+GET {{host}}/pets/types
+Accept: application/json
+
+### Pet types (search by dog breeds)
+GET {{host}}/pets/types?type=dog
+Accept: application/json
+
+### Pet types (search by cat breeds)
+GET {{host}}/pets/types?type=cat
+Accept: application/json
+
 ### Inventory search by size.h (height)
 GET {{host}}/inventory/search?key=size.h&value=14
 Accept: application/json
