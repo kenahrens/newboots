@@ -210,6 +210,50 @@ This approach gives you:
 - Persistent database data
 - Full control over the application environment
 
+### Proxymock Recording for MySQL Traffic
+
+For capturing MySQL traffic with proxymock, you can use the SOCKS proxy setup:
+
+1. **Start databases and proxymock recording:**
+   ```bash
+   make dev-with-proxy
+   ```
+
+2. **Or start them separately:**
+   ```bash
+   make databases-up
+   make proxymock-record-mysql
+   ```
+
+3. **Run the application with proxy settings:**
+   ```bash
+   make run-with-proxy
+   ```
+
+4. **Or use the complete workflow:**
+   ```bash
+   make proxy-workflow
+   ```
+
+**Available proxymock targets:**
+- `make proxymock-record-mysql` - Start proxymock recording with SOCKS proxy on port 4140
+- `make proxymock-stop-mysql` - Stop proxymock recording
+- `make proxymock-list` - List running proxymock jobs
+- `make run-with-proxy` - Run application with proxy settings
+- `make proxy-workflow` - Complete workflow (databases + proxymock + app)
+
+**How it works:**
+- Proxymock creates a SOCKS proxy on port 4140
+- The application uses hostnames `mongodb` and `mysql` (Docker network aliases)
+- Java networking is configured to use the SOCKS proxy via `JAVA_OPTS`
+- All database traffic is captured through the proxy
+
+**Database hostnames:**
+- MongoDB: `mongodb:27017`
+- MySQL: `mysql:3306`
+
+These hostnames are resolved through the Docker network and routed through the SOCKS proxy for traffic capture.
+
 ## Testing the Endpoints
 
 Once the application is running on port 8080, you can test the endpoints:
