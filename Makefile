@@ -18,19 +18,43 @@ run-proxy:
 	JAVA_TOOL_OPTIONS="$(SOCKS_PROXY) $(TRUSTSTORE)" mvn spring-boot:run
 
 docker-compose-up:
-	docker-compose up -d
+	docker compose up -d
 
 docker-compose-down:
-	docker-compose down
+	docker compose down
 
 docker-compose-logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 docker-compose-test:
-	docker-compose up -d
+	docker compose up -d
 	sleep 30
 	./scripts/test_endpoints.sh
-	docker-compose down
+	docker compose down
+
+# Database-only targets
+databases-up:
+	docker compose -f docker-compose-databases.yml up -d
+
+databases-down:
+	docker compose -f docker-compose-databases.yml down
+
+databases-logs:
+	docker compose -f docker-compose-databases.yml logs -f
+
+databases-clean:
+	docker compose -f docker-compose-databases.yml down -v
+
+# Local development with databases
+dev-setup: databases-up
+	@echo "Starting databases..."
+	@echo "Waiting for databases to be ready..."
+	@sleep 10
+	@echo "Databases are ready!"
+	@echo "You can now run: mvn spring-boot:run"
+
+dev-clean: databases-down
+	@echo "Databases stopped and cleaned up"
 
 docker-client:
 	docker build -f Dockerfile.client -t ghcr.io/kenahrens/newboots-client:latest .

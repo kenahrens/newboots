@@ -173,6 +173,43 @@ Then run:
 docker-compose up -d
 ```
 
+### Local Development with Docker Databases (Recommended for Development)
+
+For local development, you can run just the databases in Docker and the application locally:
+
+1. **Start only the databases:**
+   ```bash
+   make databases-up
+   # or manually:
+   docker-compose -f docker-compose-databases.yml up -d
+   ```
+
+2. **Run the application locally:**
+   ```bash
+   mvn spring-boot:run
+   ```
+
+3. **Stop the databases when done:**
+   ```bash
+   make databases-down
+   # or manually:
+   docker-compose -f docker-compose-databases.yml down
+   ```
+
+**Available Makefile targets for database management:**
+- `make databases-up` - Start MongoDB and MySQL
+- `make databases-down` - Stop the databases
+- `make databases-logs` - View database logs
+- `make databases-clean` - Stop and remove database volumes
+- `make dev-setup` - Start databases and show ready message
+- `make dev-clean` - Stop and clean up databases
+
+This approach gives you:
+- Fast application startup (no Docker build needed)
+- Easy debugging and hot reloading
+- Persistent database data
+- Full control over the application environment
+
 ## Testing the Endpoints
 
 Once the application is running on port 8080, you can test the endpoints:
