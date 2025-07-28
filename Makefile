@@ -49,19 +49,15 @@ lint:
 
 deploy:
 	kubectl apply -k k8s/overlays/default
-	kubectl apply -k k8s/overlays/microservices
 
 patch:
-	kubectl patch deployment newboots-server -n microservices --patch-file k8s/patch-inject-newboots.yaml
 	kubectl patch deployment newboots-server -n default --patch-file k8s/patch-inject-newboots.yaml
 
 check-k8s-image:
-	grep -E 'image: ghcr.io/kenahrens/newboots-(client|server):latest' k8s/base-default/deploy.yaml
+	grep -E 'image: ghcr.io/kenahrens/newboots-(client|server):latest' k8s/base/deploy.yaml
 
 delete:
-	kubectl delete deployment newboots-server -n microservices || true
 	kubectl delete deployment newboots-server -n default || true
-	kubectl delete deployment newboots-client -n microservices || true
 
 clean:
 	mvn clean
