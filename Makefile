@@ -65,11 +65,7 @@ proxymock-record-mysql:
 
 proxymock-stop-mysql:
 	@echo "Stopping proxymock recording..."
-	proxymock stop
-
-proxymock-list:
-	@echo "Listing running proxymock jobs..."
-	proxymock list
+	pkill -f proxymock
 
 # Development with proxymock recording
 dev-with-proxy: databases-up

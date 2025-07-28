@@ -237,8 +237,7 @@ For capturing MySQL traffic with proxymock, you can use the SOCKS proxy setup:
 
 **Available proxymock targets:**
 - `make proxymock-record-mysql` - Start proxymock recording with SOCKS proxy on port 4140
-- `make proxymock-stop-mysql` - Stop proxymock recording
-- `make proxymock-list` - List running proxymock jobs
+- `make proxymock-stop-mysql` - Stop proxymock recording (uses pkill)
 - `make run-with-proxy` - Run application with proxy settings
 - `make proxy-workflow` - Complete workflow (databases + proxymock + app)
 
