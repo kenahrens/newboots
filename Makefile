@@ -61,21 +61,21 @@ proxymock-record-mysql:
 	@echo "Starting proxymock recording with SOCKS proxy on port 4140..."
 	@echo "MySQL traffic will be captured through the proxy"
 	@echo "Make sure to configure the app to use the proxy settings"
-	proxymock-simulator start_recording_traffic --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140
+	proxymock record --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140
 
 proxymock-stop-mysql:
 	@echo "Stopping proxymock recording..."
-	proxymock-simulator stop_recording_traffic
+	proxymock stop
 
 proxymock-list:
 	@echo "Listing running proxymock jobs..."
-	proxymock-simulator list_running
+	proxymock list
 
 # Development with proxymock recording
 dev-with-proxy: databases-up
 	@echo "Starting databases..."
 	@echo "Starting proxymock recording..."
-	proxymock-simulator start_recording_traffic --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140
+	proxymock record --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140
 	@echo "Databases and proxymock are ready!"
 	@echo "Run the app with proxy settings: mvn spring-boot:run -Dspring.profiles.active=proxy"
 	@echo "Or set environment variables:"
