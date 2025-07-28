@@ -36,6 +36,8 @@ spec:
           ports:
             - containerPort: 8080
               name: http
+            - containerPort: 9090
+              name: grpc
           env:
             - name: SERVER_PORT
               value: "8080"
@@ -46,6 +48,12 @@ spec:
                   fieldPath: metadata.namespace
             - name: MONGODB_URI
               value: "mongodb://mongo:27017/newboots"
+            - name: MYSQL_URL
+              value: "jdbc:mysql://mysql:3306/newboots?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+            - name: MYSQL_USERNAME
+              value: "newboots"
+            - name: MYSQL_PASSWORD
+              value: "newboots"
           envFrom:
             - configMapRef:
                 name: newboots-server 

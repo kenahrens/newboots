@@ -51,7 +51,12 @@ public final class HttpClientRunner {
             "/spacex",
             "/zip",
             "/zip?filename=jquery",
-            "/number-to-words?number=123"
+            "/number-to-words?number=123",
+            "/inventory/search?key=item&value=journal",
+            "/inventory/search?key=qty&value=25",
+            "/pets/types",
+            "/pets/types?type=dog",
+            "/pets/types?type=cat"
         };
         int cycle = 1;
         while (true) {

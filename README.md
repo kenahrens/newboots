@@ -21,6 +21,7 @@ A Spring Boot microservice application built with Spring Boot 3.2.3 and Java 17.
 - `POST /location` - Accepts and returns location data
 - `GET /number-to-words?number={number}` - Converts a number to words using a SOAP API
 - `GET /inventory/search?key={key}&value={value}` - Searches inventory for documents where the given key equals the given value
+- `GET /pets/types?type={type}` - Gets pet breeds based on the provided pet type (e.g., dog, cat, bird)
 
 ### gRPC (port 9090)
 - `LocationService/EchoLocation(Location) -> Location`
@@ -29,25 +30,148 @@ A Spring Boot microservice application built with Spring Boot 3.2.3 and Java 17.
 
 ## Prerequisites
 
-- Java 17 or higher
-- Maven 3.6 or higher
+- **Java 17** or higher
+- **Maven 3.6** or higher
+- **MongoDB 6.0** or higher (for inventory data)
+- **MySQL 8.0** or higher (for pet breeds data)
+- **Docker** (optional, for containerized deployment)
+- **Kubernetes** (optional, for k8s deployment)
+
+## Dependencies
+
+### Core Dependencies
+- **Spring Boot 3.2.3** - Main application framework
+- **Spring Web** - REST API support
+- **Spring Actuator** - Health monitoring and metrics
+- **Spring Data JPA** - Database abstraction layer
+- **Spring Data MongoDB** - MongoDB integration
+
+### Database Dependencies
+- **MySQL Connector/J 8.0.33** - MySQL database driver
+- **H2 Database** - In-memory database for testing
+
+### HTTP Client Dependencies
+- **Google HTTP Client 1.43.3** - For external API calls (NASA, SpaceX)
+- **Apache HTTP Client 5.3.1** - For ZIP file operations
+
+### Utility Dependencies
+- **Apache Commons IO 2.15.1** - File operations
+- **Jackson** - JSON processing
+- **SLF4J** - Logging framework
+
+### SOAP API Dependencies
+- **javax.xml.soap-api 1.4.0** - SOAP API support
+- **saaj-impl 1.5.3** - SOAP implementation
+
+### gRPC Dependencies
+- **grpc-netty-shaded 1.62.2** - gRPC networking
+- **grpc-protobuf 1.62.2** - Protocol buffers
+- **grpc-services 1.62.2** - gRPC services
+- **protobuf-java 4.25.1** - Protocol buffer runtime
+
+### Test Dependencies
+- **Spring Boot Test** - Testing framework
+- **JUnit 5** - Unit testing
+- **Mockito** - Mocking framework
 
 ## Building and Running
 
-1. **Build the application:**
+### Local Development Setup
+
+1. **Start MongoDB:**
+   ```bash
+   # Using Docker
+   docker run -d --name mongo -p 27017:27017 mongo:6.0
+   
+   # Or using MongoDB locally
+   mongod --dbpath /path/to/data/db
+   ```
+
+2. **Start MySQL:**
+   ```bash
+   # Using Docker
+   docker run -d --name mysql -p 3306:3306 \
+     -e MYSQL_ROOT_PASSWORD=password \
+     -e MYSQL_DATABASE=newboots \
+     -e MYSQL_USER=newboots \
+     -e MYSQL_PASSWORD=newboots \
+     mysql:8.0
+   
+   # Or using MySQL locally
+   mysql -u root -p
+   CREATE DATABASE newboots;
+   CREATE USER 'newboots'@'%' IDENTIFIED BY 'newboots';
+   GRANT ALL PRIVILEGES ON newboots.* TO 'newboots'@'%';
+   FLUSH PRIVILEGES;
+   ```
+
+3. **Build the application:**
    ```bash
    mvn clean package
    ```
 
-2. **Run the application:**
+4. **Run the application:**
    ```bash
    mvn spring-boot:run
    ```
 
-3. **Or run the JAR file:**
+5. **Or run the JAR file:**
    ```bash
    java -jar target/newboots-0.0.1-SNAPSHOT.jar
    ```
+
+### Using Docker Compose (Recommended)
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+services:
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: newboots
+    volumes:
+      - mongo_data:/data/db
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: newboots
+      MYSQL_USER: newboots
+      MYSQL_PASSWORD: newboots
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+  newboots:
+    build: .
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/newboots
+      MYSQL_URL: jdbc:mysql://mysql:3306/newboots?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      MYSQL_USERNAME: newboots
+      MYSQL_PASSWORD: newboots
+    depends_on:
+      - mongo
+      - mysql
+
+volumes:
+  mongo_data:
+  mysql_data:
+```
+
+Then run:
+```bash
+docker-compose up -d
+```
 
 ## Testing the Endpoints
 
@@ -80,6 +204,17 @@ curl -X POST -H "Content-Type: application/json" -d '{"latitude": 1.0, "longitud
 
 # Number to words
 curl http://localhost:8080/number-to-words?number=123
+
+# Pet types (all breeds)
+curl http://localhost:8080/pets/types
+
+# Pet types (search by type)
+curl http://localhost:8080/pets/types?type=dog
+
+# Inventory search (MongoDB)
+curl http://localhost:8080/inventory/search?key=item&value=journal
+curl http://localhost:8080/inventory/search?key=qty&value=25
+curl http://localhost:8080/inventory/search?key=status&value=A
 ```
 
 ### Testing the gRPC Endpoints
@@ -106,16 +241,6 @@ The application uses the following default configuration:
 
 Configuration can be modified in `src/main/resources/application.properties`.
 
-## Dependencies
-
-- Spring Boot 3.2.3
-- Spring Web
-- Spring Actuator
-- Google HTTP Client
-- Apache HTTP Client 5
-- Apache Commons IO
-- Jackson for JSON processing 
-
 ## MongoDB Requirement
 
 This service requires a MongoDB instance. By default, it connects to `mongodb://mongo:27017/newboots`.
@@ -126,4 +251,18 @@ To override the connection string, set the `MONGODB_URI` environment variable:
 export MONGODB_URI="mongodb://localhost:27017/newboots"
 ```
 
-The application will automatically initialize the `inventory` collection with sample data if it is empty. 
+The application will automatically initialize the `inventory` collection with sample data if it is empty.
+
+## MySQL Requirement
+
+This service also requires a MySQL instance. By default, it connects to `jdbc:mysql://localhost:3306/newboots`.
+
+To override the connection settings, set the following environment variables:
+
+```bash
+export MYSQL_URL="jdbc:mysql://localhost:3306/newboots?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+export MYSQL_USERNAME="your_username"
+export MYSQL_PASSWORD="your_password"
+```
+
+The application will automatically initialize the `pets` table with sample data if it is empty. 

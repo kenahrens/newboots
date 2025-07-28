@@ -3,7 +3,7 @@ TAG ?= latest
 SOCKS_PROXY ?= -DsocksProxyHost=localhost -DsocksProxyPort=4140
 TRUSTSTORE ?= -Djavax.net.ssl.trustStore=$(HOME)/.speedscale/certs/cacerts.jks
 
-.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean test-endpoints run-proxy
+.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean test-endpoints run-proxy docker-compose-up docker-compose-down
 
 test:
 	mvn test
@@ -16,6 +16,21 @@ run:
 
 run-proxy:
 	JAVA_TOOL_OPTIONS="$(SOCKS_PROXY) $(TRUSTSTORE)" mvn spring-boot:run
+
+docker-compose-up:
+	docker-compose up -d
+
+docker-compose-down:
+	docker-compose down
+
+docker-compose-logs:
+	docker-compose logs -f
+
+docker-compose-test:
+	docker-compose up -d
+	sleep 30
+	./scripts/test_endpoints.sh
+	docker-compose down
 
 docker-client:
 	docker build -f Dockerfile.client -t ghcr.io/kenahrens/newboots-client:latest .
