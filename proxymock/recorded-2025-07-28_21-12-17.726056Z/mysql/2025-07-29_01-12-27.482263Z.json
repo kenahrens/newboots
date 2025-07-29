@@ -1,0 +1,133 @@
+{
+  "msgType":  "rrpair",
+  "resource":  "my-app",
+  "ts":  "2025-07-29T01:12:27.482263Z",
+  "l7protocol":  "mysql",
+  "duration":  1,
+  "tags":  {
+    "captureMode":  "proxy",
+    "proxyLocation":  "out",
+    "proxyProtocol":  "tcp:http",
+    "proxyType":  "dual",
+    "proxyVersion":  "v2.3.661",
+    "reverseProxyHost":  "localhost",
+    "reverseProxyPort":  "8080",
+    "sequence":  "53",
+    "source":  "goproxy"
+  },
+  "uuid":  "rpse0SlySOmvCPmmXG2hRQ==",
+  "direction":  "OUT",
+  "cluster":  "undefined",
+  "namespace":  "undefined",
+  "service":  "my-app",
+  "network_address":  "mysql:3306",
+  "command":  "Handshake OK",
+  "location":  "N/A",
+  "status":  "OK",
+  "mysql":  {
+    "request":  {
+      "ok":  {
+        "serverStatus":  [
+          "MYSQL_SERVER_STATUS_AUTOCOMMIT"
+        ]
+      }
+    },
+    "response":  {},
+    "handshake":  {
+      "request":  {
+        "serverVersion":  "8.0.43",
+        "threadID":  110,
+        "capabilities":  [
+          "MYSQL_CAPABILITY_MULTI_STATEMENTS",
+          "MYSQL_CAPABILITY_ZSTD_COMPRESSION_ALGORITHM",
+          "MYSQL_CAPABILITY_RESERVED",
+          "MYSQL_CAPABILITY_QUERY_ATTRIBUTES",
+          "MYSQL_CAPABILITY_FOUND_ROWS",
+          "MYSQL_CAPABILITY_NO_SCHEMA",
+          "MYSQL_CAPABILITY_ODBC",
+          "MYSQL_CAPABILITY_IGNORE_SPACE",
+          "MYSQL_CAPABILITY_TRANSACTIONS",
+          "MYSQL_CAPABILITY_RESERVED2",
+          "MYSQL_CAPABILITY_CAN_HANDLE_EXPIRED_PASSWORDS",
+          "MYSQL_CAPABILITY_LONG_PASSWORD",
+          "MYSQL_CAPABILITY_MULTI_RESULTS",
+          "MYSQL_CAPABILITY_PS_MULTI_RESULTS",
+          "MYSQL_CAPABILITY_DEPRECATE_EOF",
+          "MYSQL_CAPABILITY_SSL_VERIFY_SERVER_CERT",
+          "MYSQL_CAPABILITY_LONG_FLAG",
+          "MYSQL_CAPABILITY_SSL",
+          "MYSQL_CAPABILITY_MULTI_FACTOR_AUTHENTICATION",
+          "MYSQL_CAPABILITY_CONNECT_ATTRS",
+          "MYSQL_CAPABILITY_SESSION_TRACK",
+          "MYSQL_CAPABILITY_CONNECT_WITH_DB",
+          "MYSQL_CAPABILITY_COMPRESS",
+          "MYSQL_CAPABILITY_IGNORE_SIGPIPE",
+          "MYSQL_CAPABILITY_PLUGIN_AUTH",
+          "MYSQL_CAPABILITY_OPTIONAL_RESULTSET_METADATA",
+          "MYSQL_CAPABILITY_PROTOCOL_41",
+          "MYSQL_CAPABILITY_INTERACTIVE",
+          "MYSQL_CAPABILITY_PLUGIN_AUTH_LENENC_CLIENT_DATA",
+          "MYSQL_CAPABILITY_REMEMBER_OPTIONS",
+          "MYSQL_CAPABILITY_LOCAL_FILES"
+        ],
+        "serverStatus":  [
+          "MYSQL_SERVER_STATUS_AUTOCOMMIT"
+        ],
+        "charset":  "MYSQL_CHARSET_UTF8MB4_0900_AI_CI",
+        "authPlugin":  "mysql_native_password"
+      },
+      "response":  {
+        "capabilities":  [
+          "MYSQL_CAPABILITY_LONG_FLAG",
+          "MYSQL_CAPABILITY_MULTI_FACTOR_AUTHENTICATION",
+          "MYSQL_CAPABILITY_CONNECT_ATTRS",
+          "MYSQL_CAPABILITY_CONNECT_WITH_DB",
+          "MYSQL_CAPABILITY_PLUGIN_AUTH",
+          "MYSQL_CAPABILITY_PROTOCOL_41",
+          "MYSQL_CAPABILITY_PLUGIN_AUTH_LENENC_CLIENT_DATA",
+          "MYSQL_CAPABILITY_QUERY_ATTRIBUTES",
+          "MYSQL_CAPABILITY_FOUND_ROWS",
+          "MYSQL_CAPABILITY_TRANSACTIONS",
+          "MYSQL_CAPABILITY_RESERVED2",
+          "MYSQL_CAPABILITY_LONG_PASSWORD",
+          "MYSQL_CAPABILITY_MULTI_RESULTS",
+          "MYSQL_CAPABILITY_PS_MULTI_RESULTS",
+          "MYSQL_CAPABILITY_DEPRECATE_EOF"
+        ],
+        "maxPacketSize":  16777215,
+        "charset":  "MYSQL_CHARSET_UTF8MB4_0900_AI_CI",
+        "username":  "newboots",
+        "database":  "newboots",
+        "authPlugin":  "mysql_native_password",
+        "connectAttrs":  {
+          "_client_license":  "GPL",
+          "_client_name":  "MySQL Connector/J",
+          "_client_version":  "8.0.33",
+          "_runtime_vendor":  "Homebrew",
+          "_runtime_version":  "17.0.16"
+        }
+      }
+    }
+  },
+  "signature":  {
+    "mysql:command":  "T0s=",
+    "mysql:phase":  "TVlTUUxfUEhBU0VfVU5LTk9XTg=="
+  },
+  "netinfo":  {
+    "id":  "5",
+    "startTime":  "2025-07-29T01:12:27.479718Z",
+    "downstream":  {
+      "established":  "2025-07-29T01:12:27.476106Z",
+      "ipAddress":  "127.0.0.1",
+      "port":  57486,
+      "bytesSent":  "222"
+    },
+    "upstream":  {
+      "established":  "2025-07-29T01:12:27.477267Z",
+      "ipAddress":  "192.168.64.1",
+      "port":  3306,
+      "hostname":  "mysql",
+      "bytesSent":  "89"
+    }
+  }
+}

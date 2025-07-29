@@ -214,6 +214,43 @@ This approach gives you:
 
 For capturing MySQL traffic with proxymock, you can use the SOCKS proxy setup:
 
+#### Prerequisites
+
+**Add entries to your `/etc/hosts` file:**
+```bash
+# Add these lines to /etc/hosts (requires sudo)
+YOUR_IP_ADDRESS mongo
+```
+
+#### Step-by-Step Proxymock Setup
+
+1. **Start proxymock recording in one terminal window:**
+   ```bash
+   proxymock record
+   ```
+
+2. **In another terminal window, run the development environment:**
+   ```bash
+   make dev-proxy
+   ```
+
+3. **Test the application to generate database traffic:**
+   ```bash
+   # Test MySQL endpoint (pets)
+   curl http://localhost:8080/pets/types
+   curl http://localhost:8080/pets/types?type=dog
+   
+   # Test MongoDB endpoint (inventory)
+   curl http://localhost:8080/inventory/search?key=item&value=journal
+   ```
+
+4. **Clean up when done:**
+   ```bash
+   make dev-proxy-clean
+   ```
+
+#### Alternative: Complete Workflow
+
 1. **Complete workflow (recommended):**
    ```bash
    make dev-proxy

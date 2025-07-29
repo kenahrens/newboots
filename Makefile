@@ -59,7 +59,7 @@ dev-clean: databases-down
 # Proxymock recording
 proxymock-record:
 	@echo "Starting proxymock recording with SOCKS proxy on port 4140..."
-	proxymock record
+	proxymock record -vv
 
 proxymock-stop:
 	@echo "Stopping proxymock recording..."
@@ -68,14 +68,11 @@ proxymock-stop:
 # Development with proxymock (complete workflow)
 dev-proxy: databases-up
 	@echo "Starting databases and proxymock recording..."
-	@echo "Starting proxymock recording..."
-	proxymock record &
-	@sleep 5
 	@echo "Setting JAVA_TOOL_OPTIONS for SOCKS proxy and trust store..."
 	@echo "Setting custom hostnames for proxymock grouping..."
 	@export JAVA_TOOL_OPTIONS="-DsocksProxyHost=localhost -DsocksProxyPort=4140 -Djavax.net.ssl.trustStore=$$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" && \
-	export MONGODB_HOST="newboots-mongo" && \
-	export MYSQL_HOST="newboots-mysql" && \
+	export MONGODB_HOST="localhost" && \
+	export MYSQL_HOST="mysql" && \
 	echo "JAVA_TOOL_OPTIONS: $$JAVA_TOOL_OPTIONS" && \
 	echo "MONGODB_HOST: $$MONGODB_HOST" && \
 	echo "MYSQL_HOST: $$MYSQL_HOST" && \
