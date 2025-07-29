@@ -88,8 +88,8 @@ run-with-proxy:
 	@echo "Setting JAVA_TOOL_OPTIONS for SOCKS proxy and trust store..."
 	@export JAVA_TOOL_OPTIONS="-DsocksProxyHost=localhost -DsocksProxyPort=4140 -Djavax.net.ssl.trustStore=$$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" && \
 	echo "JAVA_TOOL_OPTIONS: $$JAVA_TOOL_OPTIONS" && \
-	echo "Starting application with proxy profile..." && \
-	mvn spring-boot:run -Dspring.profiles.active=proxy
+	echo "Starting application with proxy..." && \
+	mvn spring-boot:run
 
 # Complete workflow for proxy recording
 proxy-workflow: dev-with-proxy
@@ -98,7 +98,7 @@ proxy-workflow: dev-with-proxy
 	@echo "Starting application with proxy..."
 	@export JAVA_TOOL_OPTIONS="-DsocksProxyHost=localhost -DsocksProxyPort=4140 -Djavax.net.ssl.trustStore=$$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" && \
 	echo "JAVA_TOOL_OPTIONS: $$JAVA_TOOL_OPTIONS" && \
-	mvn spring-boot:run -Dspring.profiles.active=proxy
+	mvn spring-boot:run
 
 docker-client:
 	docker build -f Dockerfile.client -t ghcr.io/kenahrens/newboots-client:latest .
