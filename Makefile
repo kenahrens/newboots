@@ -59,7 +59,7 @@ dev-clean: databases-down
 # Proxymock recording
 proxymock-record:
 	@echo "Starting proxymock recording with SOCKS proxy on port 4140..."
-	proxymock record --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140
+	proxymock record
 
 proxymock-stop:
 	@echo "Stopping proxymock recording..."
@@ -69,7 +69,7 @@ proxymock-stop:
 dev-proxy: databases-up
 	@echo "Starting databases and proxymock recording..."
 	@echo "Starting proxymock recording..."
-	proxymock record --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140 &
+	proxymock record &
 	@sleep 5
 	@echo "Setting JAVA_TOOL_OPTIONS for SOCKS proxy and trust store..."
 	@export JAVA_TOOL_OPTIONS="-DsocksProxyHost=localhost -DsocksProxyPort=4140 -Djavax.net.ssl.trustStore=$$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" && \
