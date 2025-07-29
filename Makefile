@@ -57,13 +57,13 @@ dev-clean: databases-down
 	@echo "Databases stopped and cleaned up"
 
 # Proxymock recording targets
-proxymock-record-mysql:
+proxymock-record:
 	@echo "Starting proxymock recording with SOCKS proxy on port 4140..."
 	@echo "MySQL traffic will be captured through the proxy"
 	@echo "Make sure to configure the app to use the proxy settings"
-	proxymock record --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140
+	proxymock record
 
-proxymock-stop-mysql:
+proxymock-stop:
 	@echo "Stopping proxymock recording..."
 	pkill -f proxymock
 
@@ -75,7 +75,7 @@ dev-with-proxy: databases-up
 	@echo "Databases and proxymock are ready!"
 	@echo "Run the app with proxy settings: mvn spring-boot:run -Dspring.profiles.active=proxy"
 	@echo "Or set environment variables:"
-	@echo "  export JAVA_OPTS='-DsocksProxyHost=localhost -DsocksProxyPort=4140'"
+	@echo "  export JAVA_TOOL_OPTIONS='-DsocksProxyHost=localhost -DsocksProxyPort=4140'"
 	@echo "  mvn spring-boot:run"
 
 dev-clean-with-proxy: proxymock-stop-mysql databases-down
@@ -85,9 +85,9 @@ dev-clean-with-proxy: proxymock-stop-mysql databases-down
 run-with-proxy:
 	@echo "Running application with proxymock proxy..."
 	@echo "Make sure proxymock is running first with: make proxymock-record-mysql"
-	@echo "Setting JAVA_OPTS for SOCKS proxy..."
-	@export JAVA_OPTS="-DsocksProxyHost=localhost -DsocksProxyPort=4140" && \
-	echo "JAVA_OPTS: $$JAVA_OPTS" && \
+	@echo "Setting JAVA_TOOL_OPTIONS for SOCKS proxy and trust store..."
+	@export JAVA_TOOL_OPTIONS="-DsocksProxyHost=localhost -DsocksProxyPort=4140 -Djavax.net.ssl.trustStore=$$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" && \
+	echo "JAVA_TOOL_OPTIONS: $$JAVA_TOOL_OPTIONS" && \
 	echo "Starting application with proxy profile..." && \
 	mvn spring-boot:run -Dspring.profiles.active=proxy
 
@@ -96,8 +96,8 @@ proxy-workflow: dev-with-proxy
 	@echo "Waiting for proxymock to be ready..."
 	@sleep 5
 	@echo "Starting application with proxy..."
-	@export JAVA_OPTS="-DsocksProxyHost=localhost -DsocksProxyPort=4140" && \
-	echo "JAVA_OPTS: $$JAVA_OPTS" && \
+	@export JAVA_TOOL_OPTIONS="-DsocksProxyHost=localhost -DsocksProxyPort=4140 -Djavax.net.ssl.trustStore=$$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" && \
+	echo "JAVA_TOOL_OPTIONS: $$JAVA_TOOL_OPTIONS" && \
 	mvn spring-boot:run -Dspring.profiles.active=proxy
 
 docker-client:

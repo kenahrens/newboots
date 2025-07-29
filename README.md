@@ -244,8 +244,17 @@ For capturing MySQL traffic with proxymock, you can use the SOCKS proxy setup:
 **How it works:**
 - Proxymock creates a SOCKS proxy on port 4140
 - The application uses hostnames `mongodb` and `mysql` (Docker network aliases)
-- Java networking is configured to use the SOCKS proxy via `JAVA_OPTS`
+- Java networking is configured to use the SOCKS proxy via `JAVA_TOOL_OPTIONS`
+- Trust store is configured from `~/.speedscale/certs/cacerts.jks`
 - All database traffic is captured through the proxy
+
+**Java Options for Proxy:**
+```bash
+-DsocksProxyHost=localhost
+-DsocksProxyPort=4140
+-Djavax.net.ssl.trustStore=~/.speedscale/certs/cacerts.jks
+-Djavax.net.ssl.trustStorePassword=changeit
+```
 
 **Database hostnames:**
 - MongoDB: `mongodb:27017`
