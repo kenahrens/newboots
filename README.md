@@ -201,7 +201,7 @@ For local development, you can run just the databases in Docker and the applicat
 - `make databases-down` - Stop the databases
 - `make databases-logs` - View database logs
 - `make databases-clean` - Stop and remove database volumes
-- `make dev-setup` - Start databases and show ready message
+- `make dev` - Start databases and show ready message
 - `make dev-clean` - Stop and clean up databases
 
 This approach gives you:
@@ -214,32 +214,28 @@ This approach gives you:
 
 For capturing MySQL traffic with proxymock, you can use the SOCKS proxy setup:
 
-1. **Start databases and proxymock recording:**
+1. **Complete workflow (recommended):**
    ```bash
-   make dev-with-proxy
+   make dev-proxy
    ```
 
-2. **Or start them separately:**
+2. **Or start components separately:**
    ```bash
    make databases-up
-   make proxymock-record-mysql
+   make proxymock-record
+   # Then run the app manually with proxy settings
    ```
 
-3. **Run the application with proxy settings:**
+3. **Clean up when done:**
    ```bash
-   make run-with-proxy
-   ```
-
-4. **Or use the complete workflow:**
-   ```bash
-   make proxy-workflow
+   make dev-proxy-clean
    ```
 
 **Available proxymock targets:**
-- `make proxymock-record-mysql` - Start proxymock recording with SOCKS proxy on port 4140
-- `make proxymock-stop-mysql` - Stop proxymock recording (uses pkill)
-- `make run-with-proxy` - Run application with proxy settings
-- `make proxy-workflow` - Complete workflow (databases + proxymock + app)
+- `make proxymock-record` - Start proxymock recording with SOCKS proxy on port 4140
+- `make proxymock-stop` - Stop proxymock recording (uses pkill)
+- `make dev-proxy` - Complete workflow (databases + proxymock + app)
+- `make dev-proxy-clean` - Stop proxymock and clean up databases
 
 **How it works:**
 - Proxymock creates a SOCKS proxy on port 4140

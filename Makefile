@@ -32,7 +32,7 @@ docker-compose-test:
 	./scripts/test_endpoints.sh
 	docker compose down
 
-# Database-only targets
+# Database management
 databases-up:
 	docker compose -f docker-compose-databases.yml up -d
 
@@ -45,8 +45,8 @@ databases-logs:
 databases-clean:
 	docker compose -f docker-compose-databases.yml down -v
 
-# Local development with databases
-dev-setup: databases-up
+# Local development
+dev: databases-up
 	@echo "Starting databases..."
 	@echo "Waiting for databases to be ready..."
 	@sleep 10
@@ -56,49 +56,29 @@ dev-setup: databases-up
 dev-clean: databases-down
 	@echo "Databases stopped and cleaned up"
 
-# Proxymock recording targets
+# Proxymock recording
 proxymock-record:
 	@echo "Starting proxymock recording with SOCKS proxy on port 4140..."
-	@echo "MySQL traffic will be captured through the proxy"
-	@echo "Make sure to configure the app to use the proxy settings"
-	proxymock record
+	proxymock record --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140
 
 proxymock-stop:
 	@echo "Stopping proxymock recording..."
 	pkill -f proxymock
 
-# Development with proxymock recording
-dev-with-proxy: databases-up
-	@echo "Starting databases..."
+# Development with proxymock (complete workflow)
+dev-proxy: databases-up
+	@echo "Starting databases and proxymock recording..."
 	@echo "Starting proxymock recording..."
-	proxymock record --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140
-	@echo "Databases and proxymock are ready!"
-	@echo "Run the app with proxy settings: mvn spring-boot:run -Dspring.profiles.active=proxy"
-	@echo "Or set environment variables:"
-	@echo "  export JAVA_TOOL_OPTIONS='-DsocksProxyHost=localhost -DsocksProxyPort=4140'"
-	@echo "  mvn spring-boot:run"
-
-dev-clean-with-proxy: proxymock-stop-mysql databases-down
-	@echo "Proxymock recording stopped and databases cleaned up"
-
-# Run application with proxy
-run-with-proxy:
-	@echo "Running application with proxymock proxy..."
-	@echo "Make sure proxymock is running first with: make proxymock-record-mysql"
+	proxymock record --out-directory proxymock/recorded-mysql-$(shell date +%Y-%m-%d_%H-%M-%S) --proxy-in-port 4140 &
+	@sleep 5
 	@echo "Setting JAVA_TOOL_OPTIONS for SOCKS proxy and trust store..."
 	@export JAVA_TOOL_OPTIONS="-DsocksProxyHost=localhost -DsocksProxyPort=4140 -Djavax.net.ssl.trustStore=$$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" && \
 	echo "JAVA_TOOL_OPTIONS: $$JAVA_TOOL_OPTIONS" && \
 	echo "Starting application with proxy..." && \
 	mvn spring-boot:run
 
-# Complete workflow for proxy recording
-proxy-workflow: dev-with-proxy
-	@echo "Waiting for proxymock to be ready..."
-	@sleep 5
-	@echo "Starting application with proxy..."
-	@export JAVA_TOOL_OPTIONS="-DsocksProxyHost=localhost -DsocksProxyPort=4140 -Djavax.net.ssl.trustStore=$$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" && \
-	echo "JAVA_TOOL_OPTIONS: $$JAVA_TOOL_OPTIONS" && \
-	mvn spring-boot:run
+dev-proxy-clean: proxymock-stop databases-down
+	@echo "Proxymock recording stopped and databases cleaned up"
 
 docker-client:
 	docker build -f Dockerfile.client -t ghcr.io/kenahrens/newboots-client:latest .
