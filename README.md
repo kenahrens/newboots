@@ -226,7 +226,7 @@ YOUR_IP_ADDRESS mongo
 
 1. **Start proxymock recording in one terminal window:**
    ```bash
-   proxymock record
+   make proxymock-record
    ```
 
 2. **In another terminal window, run the development environment:**
@@ -239,12 +239,11 @@ YOUR_IP_ADDRESS mongo
    # Test MySQL endpoint (pets)
    curl http://localhost:8080/pets/types
    curl http://localhost:8080/pets/types?type=dog
-   
-   # Test MongoDB endpoint (inventory)
-   curl http://localhost:8080/inventory/search?key=item&value=journal
    ```
 
-4. **Clean up when done:**
+4. **View traffic in proxymock directory**
+
+5. **Clean up when done:**
    ```bash
    make dev-proxy-clean
    ```
