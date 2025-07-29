@@ -173,6 +173,127 @@ Then run:
 docker-compose up -d
 ```
 
+### Local Development with Docker Databases (Recommended for Development)
+
+For local development, you can run just the databases in Docker and the application locally:
+
+1. **Start only the databases:**
+   ```bash
+   make databases-up
+   # or manually:
+   docker-compose -f docker-compose-databases.yml up -d
+   ```
+
+2. **Run the application locally:**
+   ```bash
+   mvn spring-boot:run
+   ```
+
+3. **Stop the databases when done:**
+   ```bash
+   make databases-down
+   # or manually:
+   docker-compose -f docker-compose-databases.yml down
+   ```
+
+**Available Makefile targets for database management:**
+- `make databases-up` - Start MongoDB and MySQL
+- `make databases-down` - Stop the databases
+- `make databases-logs` - View database logs
+- `make databases-clean` - Stop and remove database volumes
+- `make dev` - Start databases and show ready message
+- `make dev-clean` - Stop and clean up databases
+
+This approach gives you:
+- Fast application startup (no Docker build needed)
+- Easy debugging and hot reloading
+- Persistent database data
+- Full control over the application environment
+
+### Proxymock Recording for MySQL Traffic
+
+For capturing MySQL traffic with proxymock, you can use the SOCKS proxy setup:
+
+#### Prerequisites
+
+**Add entries to your `/etc/hosts` file:**
+```bash
+# Add these lines to /etc/hosts (requires sudo)
+YOUR_IP_ADDRESS mongo
+```
+
+#### Step-by-Step Proxymock Setup
+
+1. **Start proxymock recording in one terminal window:**
+   ```bash
+   make proxymock-record
+   ```
+
+2. **In another terminal window, run the development environment:**
+   ```bash
+   make dev-proxy
+   ```
+
+3. **Test the application to generate database traffic:**
+   ```bash
+   # Test MySQL endpoint (pets)
+   curl http://localhost:8080/pets/types
+   curl http://localhost:8080/pets/types?type=dog
+   ```
+
+4. **View traffic in proxymock directory**
+
+5. **Clean up when done:**
+   ```bash
+   make dev-proxy-clean
+   ```
+
+#### Alternative: Complete Workflow
+
+1. **Complete workflow (recommended):**
+   ```bash
+   make dev-proxy
+   ```
+
+2. **Or start components separately:**
+   ```bash
+   make databases-up
+   make proxymock-record
+   # Then run the app manually with proxy settings
+   ```
+
+3. **Clean up when done:**
+   ```bash
+   make dev-proxy-clean
+   ```
+
+**Available proxymock targets:**
+- `make proxymock-record` - Start proxymock recording with SOCKS proxy on port 4140
+- `make proxymock-stop` - Stop proxymock recording (uses pkill)
+- `make dev-proxy` - Complete workflow (databases + proxymock + app)
+- `make dev-proxy-clean` - Stop proxymock and clean up databases
+
+**How it works:**
+- Proxymock creates a SOCKS proxy on port 4140
+- The application uses hostnames `mongodb` and `mysql` (Docker network aliases)
+- Java networking is configured to use the SOCKS proxy via `JAVA_TOOL_OPTIONS`
+- Trust store is configured from `~/.speedscale/certs/cacerts.jks`
+- All database traffic is captured through the proxy
+
+**Java Options for Proxy:**
+```bash
+-DsocksProxyHost=localhost
+-DsocksProxyPort=4140
+-Djavax.net.ssl.trustStore=~/.speedscale/certs/cacerts.jks
+-Djavax.net.ssl.trustStorePassword=changeit
+```
+
+**Database hostnames:**
+- MongoDB: `mongodb:27017`
+- MySQL: `mysql:3306`
+
+These hostnames are resolved through the Docker network and routed through the SOCKS proxy for traffic capture.
+
 ## Testing the Endpoints
 
 Once the application is running on port 8080, you can test the endpoints:

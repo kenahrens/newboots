@@ -1,7 +1,7 @@
 FROM amazoncorretto:17
 
-# Install Maven 3.9.10
-ENV MAVEN_VERSION=3.9.10
+# Install Maven 3.9.11
+ENV MAVEN_VERSION=3.9.11
 ENV MAVEN_HOME=/opt/maven
 ENV PATH=$MAVEN_HOME/bin:$PATH
 
