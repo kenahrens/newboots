@@ -72,8 +72,13 @@ dev-proxy: databases-up
 	proxymock record &
 	@sleep 5
 	@echo "Setting JAVA_TOOL_OPTIONS for SOCKS proxy and trust store..."
+	@echo "Setting custom hostnames for proxymock grouping..."
 	@export JAVA_TOOL_OPTIONS="-DsocksProxyHost=localhost -DsocksProxyPort=4140 -Djavax.net.ssl.trustStore=$$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" && \
+	export MONGODB_HOST="newboots-mongo" && \
+	export MYSQL_HOST="newboots-mysql" && \
 	echo "JAVA_TOOL_OPTIONS: $$JAVA_TOOL_OPTIONS" && \
+	echo "MONGODB_HOST: $$MONGODB_HOST" && \
+	echo "MYSQL_HOST: $$MYSQL_HOST" && \
 	echo "Starting application with proxy..." && \
 	mvn spring-boot:run
 

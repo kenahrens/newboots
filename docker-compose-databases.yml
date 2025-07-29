@@ -12,10 +12,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    networks:
-      default:
-        aliases:
-          - mongodb
 
   mysql:
     image: mysql:8.0
@@ -34,10 +30,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    networks:
-      default:
-        aliases:
-          - mysql
 
 volumes:
   mongo_data:
