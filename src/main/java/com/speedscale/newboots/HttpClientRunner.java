@@ -49,7 +49,7 @@ public final class HttpClientRunner {
             "/greeting?name=TestUser",
             "/nasa",
             "/spacex",
-            "/zip",
+            "/models/openai", // Reactive WebClient endpoint
             "/zip?filename=jquery",
             "/number-to-words?number=123",
             "/inventory/search?key=item&value=journal",

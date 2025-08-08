@@ -5,6 +5,7 @@ resources:
   - deploy.yaml
   - svc.yaml
   - cm.yaml
+  - client-deploy.yaml
   - mongo-deploy.yaml
   - mongo-svc.yaml
   - mysql-deploy.yaml

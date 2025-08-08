@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
+import reactor.core.publisher.Mono;
 import java.util.List;
 
 /**
@@ -38,6 +39,8 @@ public final class NewController {
     private MongoTemplate mongoTemplate;
     @Autowired
     private PetRepository petRepository;
+    @Autowired
+    private ReactiveApiHelper reactiveApiHelper;
 
     /**
      * Home endpoint.
@@ -181,5 +184,20 @@ public final class NewController {
             LOGGER.error("Exception calling getPetBreeds", e);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    /**
+     * Gets OpenAI models from Hugging Face using reactive WebClient.
+     *
+     * @return Mono containing the API response
+     */
+    @GetMapping("/models/openai")
+    public Mono<String> getOpenAiModels() {
+        LOGGER.info("Calling reactive API for OpenAI models from Hugging Face");
+        return reactiveApiHelper.getOpenAiModels()
+            .onErrorResume(error -> {
+                LOGGER.error("Error in reactive API call", error);
+                return Mono.just("{\"error\": \"Failed to fetch OpenAI models\"}");
+            });
     }
 }
