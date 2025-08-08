@@ -294,6 +294,22 @@ YOUR_IP_ADDRESS mongo
 
 These hostnames are resolved through the Docker network and routed through the SOCKS proxy for traffic capture.
 
+## Versioning and Multi-Architecture Support
+
+This project supports multi-architecture Docker builds and semantic versioning. See [VERSIONING.md](./VERSIONING.md) for complete details.
+
+### Quick Version Commands
+```bash
+# Check current version
+make version
+
+# Build multi-arch images (requires push access)
+make docker
+
+# Build local development images
+make docker-local
+```
+
 ## Testing the Endpoints
 
 Once the application is running on port 8080, you can test the endpoints:
