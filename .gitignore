@@ -34,3 +34,6 @@ terraform.tfstate.backup
 
 # Script log file
 speedscale_output.txt
+
+# Speedscale diagnostics (large files)
+speedscale-diagnostics/
