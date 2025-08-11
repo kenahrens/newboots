@@ -18,9 +18,9 @@ WORKDIR /usr/src/app
 COPY . /build
 
 RUN cd /build \
-    && mvn -q clean \
-    && mvn -q -DskipTests package \
-    && cp /build/target/*.jar /usr/src/app/app.jar \
+    && mvn -q clean package -DskipTests \
+    && JAR_FILE=$(find /build/target -name "newboots-*.jar" -not -name "*.original" | head -1) \
+    && cp "${JAR_FILE}" /usr/src/app/app.jar \
     && mvn -q clean
 
 EXPOSE 8080

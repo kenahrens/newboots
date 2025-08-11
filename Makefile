@@ -7,7 +7,7 @@ VERSION ?= $(shell cat VERSION 2>/dev/null || echo "0.0.1-SNAPSHOT")
 SOCKS_PROXY ?= -DsocksProxyHost=localhost -DsocksProxyPort=4140
 TRUSTSTORE ?= -Djavax.net.ssl.trustStore=$(HOME)/.speedscale/certs/cacerts.jks
 
-.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean test-endpoints run-proxy docker-compose-up docker-compose-down version set-version sync-version update-k8s-version
+.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean test-endpoints run-proxy docker-compose-up docker-compose-down version set-version sync-version update-k8s-version validate-build docker-build-local
 
 test:
 	mvn test
@@ -158,3 +158,12 @@ set-version:
 
 sync-version:
 	@./scripts/sync-version.sh
+
+validate-build:
+	@./scripts/validate-build.sh
+
+docker-build-local:
+	@echo "Building local Docker images with version $(VERSION)..."
+	docker build -f Dockerfile.server -t ghcr.io/kenahrens/newboots-server:$(VERSION) .
+	docker build -f Dockerfile.client -t ghcr.io/kenahrens/newboots-client:$(VERSION) .
+	@echo "Images built with version $(VERSION)"
