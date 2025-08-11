@@ -38,16 +38,19 @@ jobs:
       - name: Build JAR
         run: mvn clean package
 
-      - name: Generate version
+      - name: Read version from VERSION file
         id: version
         run: |
+          VERSION=$(cat VERSION | tr -d '\n\r')
           if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
-            VERSION="v1.0.${{ github.run_number }}"
+            # For main branch, use VERSION file as-is
+            BUILD_VERSION="${VERSION}"
           else
-            VERSION="v1.0.${{ github.run_number }}-pr${{ github.event.number }}"
+            # For PRs, append PR number to version from file
+            BUILD_VERSION="${VERSION}-pr${{ github.event.number }}"
           fi
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-          echo "Building version: ${VERSION}"
+          echo "VERSION=${BUILD_VERSION}" >> $GITHUB_OUTPUT
+          echo "Building version: ${BUILD_VERSION} (from VERSION file: ${VERSION})"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
