@@ -1,0 +1,172 @@
+{
+  "msgType": "rrpair",
+  "resource": "newboots-server",
+  "ts": "2025-08-08T19:42:29.124702207Z",
+  "l7protocol": "mysql",
+  "duration": 1,
+  "tags": {
+    "captureMode": "proxy",
+    "k8sAppLabel": "newboots-server",
+    "k8sAppPodName": "newboots-server-55d8b59f9-btw5x",
+    "k8sAppPodNamespace": "default",
+    "k8sClusterName": "colimaken",
+    "proxyId": "newboots-server-55d8b59f9-btw5x",
+    "proxyLocation": "out",
+    "proxyProtocol": "",
+    "proxyType": "transparent",
+    "proxyVersion": "v2.3.661",
+    "sequence": "284",
+    "source": "goproxy",
+    "trimmed": ""
+  },
+  "uuid": "gxNA+0+fSjiCSiuoA6QZHg==",
+  "direction": "OUT",
+  "cluster": "colimaken",
+  "namespace": "default",
+  "service": "newboots-server",
+  "tech": "MySQL",
+  "network_address": "mysql.default.svc.cluster.local:3306",
+  "command": "Query",
+  "location": "N/A",
+  "status": "OK",
+  "mysql": {
+    "request": {
+      "query": {
+        "query": "set session transaction read write"
+      }
+    },
+    "response": {
+      "ok": {
+        "serverStatus": [
+          "MYSQL_SERVER_STATUS_AUTOCOMMIT"
+        ]
+      }
+    },
+    "handshake": {
+      "request": {
+        "serverVersion": "8.0.43",
+        "threadID": 138,
+        "capabilities": [
+          "MYSQL_CAPABILITY_DEPRECATE_EOF",
+          "MYSQL_CAPABILITY_REMEMBER_OPTIONS",
+          "MYSQL_CAPABILITY_MULTI_RESULTS",
+          "MYSQL_CAPABILITY_SSL_VERIFY_SERVER_CERT",
+          "MYSQL_CAPABILITY_NO_SCHEMA",
+          "MYSQL_CAPABILITY_ODBC",
+          "MYSQL_CAPABILITY_PROTOCOL_41",
+          "MYSQL_CAPABILITY_CONNECT_ATTRS",
+          "MYSQL_CAPABILITY_SESSION_TRACK",
+          "MYSQL_CAPABILITY_QUERY_ATTRIBUTES",
+          "MYSQL_CAPABILITY_LONG_FLAG",
+          "MYSQL_CAPABILITY_SSL",
+          "MYSQL_CAPABILITY_OPTIONAL_RESULTSET_METADATA",
+          "MYSQL_CAPABILITY_MULTI_FACTOR_AUTHENTICATION",
+          "MYSQL_CAPABILITY_LONG_PASSWORD",
+          "MYSQL_CAPABILITY_IGNORE_SPACE",
+          "MYSQL_CAPABILITY_TRANSACTIONS",
+          "MYSQL_CAPABILITY_FOUND_ROWS",
+          "MYSQL_CAPABILITY_CONNECT_WITH_DB",
+          "MYSQL_CAPABILITY_LOCAL_FILES",
+          "MYSQL_CAPABILITY_RESERVED2",
+          "MYSQL_CAPABILITY_MULTI_STATEMENTS",
+          "MYSQL_CAPABILITY_PS_MULTI_RESULTS",
+          "MYSQL_CAPABILITY_CAN_HANDLE_EXPIRED_PASSWORDS",
+          "MYSQL_CAPABILITY_ZSTD_COMPRESSION_ALGORITHM",
+          "MYSQL_CAPABILITY_INTERACTIVE",
+          "MYSQL_CAPABILITY_RESERVED",
+          "MYSQL_CAPABILITY_PLUGIN_AUTH",
+          "MYSQL_CAPABILITY_COMPRESS",
+          "MYSQL_CAPABILITY_IGNORE_SIGPIPE",
+          "MYSQL_CAPABILITY_PLUGIN_AUTH_LENENC_CLIENT_DATA"
+        ],
+        "serverStatus": [
+          "MYSQL_SERVER_STATUS_AUTOCOMMIT"
+        ],
+        "charset": "MYSQL_CHARSET_UTF8MB4_0900_AI_CI",
+        "authPlugin": "mysql_native_password"
+      },
+      "response": {
+        "capabilities": [
+          "MYSQL_CAPABILITY_PROTOCOL_41",
+          "MYSQL_CAPABILITY_CONNECT_ATTRS",
+          "MYSQL_CAPABILITY_QUERY_ATTRIBUTES",
+          "MYSQL_CAPABILITY_LONG_FLAG",
+          "MYSQL_CAPABILITY_MULTI_FACTOR_AUTHENTICATION",
+          "MYSQL_CAPABILITY_LONG_PASSWORD",
+          "MYSQL_CAPABILITY_TRANSACTIONS",
+          "MYSQL_CAPABILITY_FOUND_ROWS",
+          "MYSQL_CAPABILITY_CONNECT_WITH_DB",
+          "MYSQL_CAPABILITY_RESERVED2",
+          "MYSQL_CAPABILITY_PS_MULTI_RESULTS",
+          "MYSQL_CAPABILITY_PLUGIN_AUTH",
+          "MYSQL_CAPABILITY_PLUGIN_AUTH_LENENC_CLIENT_DATA",
+          "MYSQL_CAPABILITY_DEPRECATE_EOF",
+          "MYSQL_CAPABILITY_MULTI_RESULTS"
+        ],
+        "maxPacketSize": 16777215,
+        "charset": "MYSQL_CHARSET_UTF8MB4_0900_AI_CI",
+        "username": "newboots",
+        "database": "newboots",
+        "authPlugin": "mysql_native_password",
+        "connectAttrs": {
+          "_client_license": "GPL",
+          "_client_name": "MySQL Connector/J",
+          "_client_version": "8.0.33",
+          "_runtime_vendor": "Amazon.com Inc.",
+          "_runtime_version": "17.0.16"
+        }
+      }
+    }
+  },
+  "tokenList": {
+    "SQL:SET session transaction read write": {
+      "id": "SQL:SET session transaction read write",
+      "tokens": [
+        {
+          "uuid": "gxNA+0+fSjiCSiuoA6QZHg==",
+          "token": {
+            "location": "mysql.request.query.query",
+            "pattern": "DATA_PATTERN_SQL",
+            "replacementValue": "U0VUIHNlc3Npb24gdHJhbnNhY3Rpb24gcmVhZCB3cml0ZQ=="
+          }
+        }
+      ]
+    }
+  },
+  "signature": {
+    "mysql:command": "UXVlcnk=",
+    "mysql:phase": "TVlTUUxfUEhBU0VfQ09NTUFORA==",
+    "mysql:query": "U0VUIHNlc3Npb24gdHJhbnNhY3Rpb24gcmVhZCB3cml0ZQ=="
+  },
+  "events": [
+    {
+      "uuid": "fbb7a313-0f79-4b63-8c59-1c0c1e9b597c",
+      "ts": "2025-08-08T19:42:29.125158542Z",
+      "source": "",
+      "operation": "transform",
+      "message": "transform chain failed: failed to mutate: failed to extract with *extractor.HTTPReqHeader: incorrect protocol type"
+    }
+  ],
+  "netinfo": {
+    "id": "1",
+    "startTime": "2025-08-08T19:40:22.427053524Z",
+    "downstream": {
+      "established": "2025-08-08T19:40:22.426404690Z",
+      "ipAddress": "10.42.0.61",
+      "port": 57764,
+      "bytesSent": "10261"
+    },
+    "upstream": {
+      "established": "2025-08-08T19:40:22.426711774Z",
+      "ipAddress": "10.43.99.202",
+      "port": 3306,
+      "hostname": "mysql.default.svc.cluster.local",
+      "bytesSent": "16542"
+    }
+  },
+  "mutableSignature": {
+    "mysql:command": "Query",
+    "mysql:phase": "MYSQL_PHASE_COMMAND",
+    "mysql:query": "SET session transaction read write"
+  }
+}
