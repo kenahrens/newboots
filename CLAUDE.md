@@ -20,6 +20,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Start dev environment**: `make dev` (starts MongoDB and MySQL in Docker)
 - **Run with proxymock**: `make dev-proxy` (includes SOCKS proxy for traffic capture)
 
+### Version Management
+- **Check current version**: `make version`
+- **Set new version**: `make set-version NEW_VERSION=1.0.0`
+- **Sync version to pom.xml**: `make sync-version`
+- **Update K8s manifests**: `make update-k8s-version`
+
 ### Docker Operations
 - **Build all images**: `make docker`
 - **Run with Docker Compose**: `docker compose up -d`

@@ -39,3 +39,6 @@ speedscale_output.txt
 speedscale-diagnostics/
 
 .app_pid
+
+# Generated Kubernetes version patch
+k8s/overlays/default/version-patch.yaml

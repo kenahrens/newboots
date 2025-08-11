@@ -4,4 +4,8 @@ kind: Kustomization
 namespace: default
 
 resources:
-  - ../../base 
+  - ../../base
+
+patchesStrategicMerge:
+  - speedscale-patch.yaml
+  - version-patch.yaml 

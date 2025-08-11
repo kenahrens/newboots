@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import reactor.core.publisher.Mono;
 import java.util.List;
 
@@ -41,6 +42,8 @@ public final class NewController {
     private PetRepository petRepository;
     @Autowired
     private ReactiveApiHelper reactiveApiHelper;
+    @Autowired
+    private NasaRateLimiter nasaRateLimiter;
 
     /**
      * Home endpoint.
@@ -75,7 +78,14 @@ public final class NewController {
     }
 
     @GetMapping("/nasa")
-    String nasa() {
+    ResponseEntity<String> nasa() {
+        if (!nasaRateLimiter.tryConsume()) {
+            LOGGER.warn("NASA API rate limit exceeded. Tokens available: " + 
+                nasaRateLimiter.getAvailableTokens());
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body("{\"error\": \"Rate limit exceeded. Please wait 10 minutes between NASA API calls.\"}");
+        }
+        
         String rspBody = "{}";
         try {
             rspBody = NasaHelper.invoke();
@@ -83,7 +93,7 @@ public final class NewController {
             LOGGER.error("Exception calling nasa", e);
             rspBody = "{\"exception\": \"" + e.getMessage() + "\"}";
         }
-        return rspBody;
+        return ResponseEntity.ok(rspBody);
     }
 
     @GetMapping("/spacex")

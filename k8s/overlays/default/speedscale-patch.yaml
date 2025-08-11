@@ -1,9 +1,11 @@
+apiVersion: apps/v1
+kind: Deployment
 metadata:
+  name: newboots-server
   annotations:
     sidecar.speedscale.com/inject: "true"
     sidecar.speedscale.com/tls-out: "true"
     sidecar.speedscale.com/tls-java-tool-options: "true"
-    sidecar.speedscale.com/diagnostics: "false"
-    sidecar.speedscale.com/ignore-outbound-ports: "3306"
     sidecar.speedscale.com/env-overrides: |
       FF_MONGODB_DETECTION=true
+    sidecar.speedscale.com/diagnostics: "false"
