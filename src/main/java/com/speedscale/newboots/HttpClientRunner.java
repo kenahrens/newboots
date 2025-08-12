@@ -50,6 +50,7 @@ public final class HttpClientRunner {
             "/nasa",
             "/spacex",
             "/models/openai", // Reactive WebClient endpoint
+            "/numberfact", // Numbers API endpoint
             "/zip?filename=jquery",
             "/number-to-words?number=123",
             "/inventory/search?key=item&value=journal",
@@ -62,6 +63,14 @@ public final class HttpClientRunner {
         while (true) {
             System.out.println("\n--- Starting cycle " + cycle + " ---");
             for (String endpoint : endpoints) {
+                // Skip MongoDB endpoints (inventory) on odd cycles (reduce by 50%)
+                if (endpoint.contains("/inventory/") && cycle % 2 == 1) {
+                    continue;
+                }
+                // Skip MySQL endpoints (pets) on odd cycles (reduce by 50%)
+                if (endpoint.contains("/pets/") && cycle % 2 == 1) {
+                    continue;
+                }
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(baseUrl + endpoint))
                         .timeout(Duration.ofSeconds(TIMEOUT_SECONDS))
