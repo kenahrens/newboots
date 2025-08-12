@@ -38,6 +38,15 @@ public class ReactiveApiHelper {
     private static final String HUGGINGFACE_API_URI =
         HF_API_BASE + "/api/models?author=openai&limit=10";
 
+    /**
+     * Base URL for Numbers API, overrideable via env var NUMBERS_API_BASE.
+     * Defaults to http://numbersapi.com
+     */
+    private static final String NUMBERS_API_BASE =
+        System.getenv("NUMBERS_API_BASE") != null
+            ? System.getenv("NUMBERS_API_BASE")
+            : "http://numbersapi.com";
+
     /** WebClient instance using Reactor Netty. */
     private final WebClient webClient;
 
@@ -49,7 +58,7 @@ public class ReactiveApiHelper {
         // For localhost connections (reverse proxy), bypass proxy settings
         // For other connections, honor system proxy properties
         HttpClient httpClient;
-        if (HF_API_BASE.contains("localhost")) {
+        if (HF_API_BASE.contains("localhost") || NUMBERS_API_BASE.contains("localhost")) {
             // Bypass proxy for localhost connections (reverse proxy scenario)
             httpClient = HttpClient.create();
         } else {
@@ -81,5 +90,23 @@ public class ReactiveApiHelper {
             .timeout(Duration.ofSeconds(10))
             .doOnSuccess(response -> LOGGER.info("Successfully retrieved OpenAI models from Hugging Face"))
             .doOnError(error -> LOGGER.error("Error calling Hugging Face API", error));
+    }
+
+    /**
+     * Makes a reactive API call to Numbers API to get a random number fact.
+     *
+     * @return Mono containing the API response as String
+     */
+    public Mono<String> getRandomNumberFact() {
+        String url = NUMBERS_API_BASE + "/random/trivia";
+        LOGGER.info("Making reactive API call to Numbers API for random fact (base: {})", NUMBERS_API_BASE);
+        
+        return webClient.get()
+            .uri(url)
+            .retrieve()
+            .bodyToMono(String.class)
+            .timeout(Duration.ofSeconds(10))
+            .doOnSuccess(response -> LOGGER.info("Successfully retrieved number fact from Numbers API"))
+            .doOnError(error -> LOGGER.error("Error calling Numbers API", error));
     }
 }

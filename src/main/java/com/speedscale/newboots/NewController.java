@@ -210,4 +210,19 @@ public final class NewController {
                 return Mono.just("{\"error\": \"Failed to fetch OpenAI models\"}");
             });
     }
+
+    /**
+     * Gets a random number fact from Numbers API using reactive WebClient.
+     *
+     * @return Mono containing the API response
+     */
+    @GetMapping("/numberfact")
+    public Mono<String> getNumberFact() {
+        LOGGER.info("Calling reactive API for random number fact");
+        return reactiveApiHelper.getRandomNumberFact()
+            .onErrorResume(error -> {
+                LOGGER.error("Error in reactive API call to Numbers API", error);
+                return Mono.just("Error: Failed to fetch number fact");
+            });
+    }
 }
