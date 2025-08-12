@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.speedscale</groupId>
 	<artifactId>newboots</artifactId>
-	<version>1.2.1</version>
+	<version>1.2.2</version>
 	<name>newboots</name>
 	<description>New Spring Boot Microservice</description>
 
