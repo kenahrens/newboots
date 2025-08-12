@@ -45,8 +45,18 @@ public class ReactiveApiHelper {
      * Constructor that creates WebClient instance.
      */
     public ReactiveApiHelper() {
-        // Configure Reactor Netty HttpClient to honor JVM/system proxy properties when set
-        HttpClient httpClient = HttpClient.create().proxyWithSystemProperties();
+        // Configure Reactor Netty HttpClient based on target
+        // For localhost connections (reverse proxy), bypass proxy settings
+        // For other connections, honor system proxy properties
+        HttpClient httpClient;
+        if (HF_API_BASE.contains("localhost")) {
+            // Bypass proxy for localhost connections (reverse proxy scenario)
+            httpClient = HttpClient.create();
+        } else {
+            // Use system proxy properties for external connections
+            httpClient = HttpClient.create().proxyWithSystemProperties();
+        }
+        
         ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
 
         this.webClient = WebClient.builder()

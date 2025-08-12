@@ -1,32 +1,34 @@
 #!/usr/bin/env bash
-# Record baseline traffic + Reactor Netty WebClient traffic using HTTP proxy
+# Record Reactor Netty WebClient traffic using reverse proxy
+# Demonstrates proxymock recording for HTTP clients that don't work well with traditional proxies
 
 set -euo pipefail
 
-echo "=== Recording Baseline + Reactor Netty Traffic with HTTP Proxy ==="
-echo "Captures: All external APIs including Hugging Face (Reactor Netty)"
+echo "=== Recording Reactor Netty Traffic with Reverse Proxy ==="
+echo "Captures: Hugging Face API traffic via Reactor Netty WebClient"
 
 # Configuration
 TS=$(date +%Y-%m-%d_%H-%M-%S)
-OUT_DIR="proxymock/recorded-${TS}-reactor-netty"
-HTTP_PROXY_PORT=4143
+OUT_DIR="proxymock/recorded-${TS}"
 APP_PORT=8080
+REVERSE_PROXY_PORT=65443
 TRUSTSTORE_PATH="$HOME/.speedscale/certs/cacerts.jks"
 
 # Check prerequisites
 if [ ! -f "$TRUSTSTORE_PATH" ]; then
   echo "⚠️  WARNING: Truststore not found at $TRUSTSTORE_PATH"
-  echo "   HTTPS calls may fail. Install proxymock truststore first."
+  echo "   Install proxymock truststore for HTTPS interception to work properly."
 fi
 
 echo "📁 Recording to: $OUT_DIR"
 
-# Start proxymock with HTTP proxy
-echo "🚀 Starting proxymock (HTTP proxy on port $HTTP_PROXY_PORT)..."
-proxymock start-recording-traffic \
+# Start proxymock with reverse proxy for Hugging Face
+echo "🚀 Starting proxymock (reverse proxy on port $REVERSE_PROXY_PORT -> huggingface.co:443)..."
+proxymock record \
+  --reverse-proxy $REVERSE_PROXY_PORT=huggingface.co:443 \
   --app-port $APP_PORT \
-  --proxy-in-port $HTTP_PROXY_PORT \
-  --out-directory "$OUT_DIR" > proxymock-record.log 2>&1 &
+  --out "$OUT_DIR" > proxymock-record.log 2>&1 &
+PROXYMOCK_PID=$!
 
 sleep 3
 
@@ -34,19 +36,18 @@ sleep 3
 cleanup() {
   echo "🛑 Stopping application and proxymock..."
   [ -n "${APP_PID:-}" ] && kill "$APP_PID" >/dev/null 2>&1 || true
-  proxymock stop-recording-traffic >/dev/null 2>&1 || true
+  [ -n "${PROXYMOCK_PID:-}" ] && kill "$PROXYMOCK_PID" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
-# Start application with HTTP/HTTPS proxy settings
-# These are needed for Reactor Netty to honor proxy
-JAVA_OPTS="-Dhttp.proxyHost=localhost -Dhttp.proxyPort=$HTTP_PROXY_PORT"
-JAVA_OPTS="$JAVA_OPTS -Dhttps.proxyHost=localhost -Dhttps.proxyPort=$HTTP_PROXY_PORT"
-JAVA_OPTS="$JAVA_OPTS -Djavax.net.ssl.trustStore=$TRUSTSTORE_PATH"
-JAVA_OPTS="$JAVA_OPTS -Djavax.net.ssl.trustStorePassword=changeit"
+# Start application with environment variable override for Hugging Face endpoint
+# This redirects Hugging Face API calls to the proxymock reverse proxy
+# Use HTTP to avoid SSL certificate complications - proxymock handles HTTPS to target
+export HF_API_BASE="http://localhost:$REVERSE_PROXY_PORT"
 
-echo "🔧 Starting application with HTTP proxy settings..."
-mvn -q spring-boot:run -Dspring-boot.run.jvmArguments="$JAVA_OPTS" > app.log 2>&1 &
+echo "🔧 Starting application with reverse proxy configuration..."
+echo "   HF_API_BASE=$HF_API_BASE (points to reverse proxy)"
+mvn -q spring-boot:run > app.log 2>&1 &
 APP_PID=$!
 
 # Wait for app to be ready
@@ -60,22 +61,10 @@ for i in {1..30}; do
   sleep 2
 done
 
-# Make test calls
-echo "📡 Making test API calls..."
-echo "  - Hugging Face Models (Reactor Netty)"
+# Make test call to trigger Reactor Netty WebClient
+echo "📡 Making test API call..."
+echo "  - Hugging Face Models API (Reactor Netty WebClient)"
 curl -s http://localhost:$APP_PORT/models/openai | jq -r '.[0].id' 2>/dev/null || echo "Reactor Netty API called"
-
-echo "  - NASA APOD API"
-curl -s http://localhost:$APP_PORT/nasa | jq -r '.title' 2>/dev/null || echo "NASA API called"
-
-echo "  - SpaceX API"
-curl -s http://localhost:$APP_PORT/spacex | jq -r '.[0].name' 2>/dev/null || echo "SpaceX API called"
-
-echo "  - ZIP Download"
-curl -s http://localhost:$APP_PORT/zip | jq -r '.message' 2>/dev/null || echo "ZIP endpoint called"
-
-echo "  - Number Conversion (SOAP)"
-curl -s "http://localhost:$APP_PORT/number-to-words?number=456" || echo "SOAP API called"
 
 # Wait for recordings to complete
 sleep 3
@@ -90,6 +79,4 @@ echo ""
 echo "✅ Recording complete!"
 echo "📁 Recordings saved to: $OUT_DIR"
 echo ""
-echo "💡 Key directories to check:"
-echo "  - huggingface.co (Reactor Netty WebClient)"
-echo "  - api.nasa.gov, api.spacexdata.com (Google HTTP Client)"
+echo "💡 Check the huggingface.co directory for captured Reactor Netty traffic"
