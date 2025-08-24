@@ -1,5 +1,7 @@
 package com.speedscale.newboots;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,37 +10,33 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = NewbootsApplication.class)
 public class ZipEndpointIntegrationTest {
 
-    @LocalServerPort
-    private int port;
+  @LocalServerPort private int port;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+  @Autowired private TestRestTemplate restTemplate;
 
-    @Test
-    public void testZipEndpointDefault() {
-        String url = "http://localhost:" + port + "/zip";
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        assertEquals(200, response.getStatusCode().value());
-        String body = response.getBody();
-        assertNotNull(body);
-        assertTrue(body.contains("totalFiles"), "Response should contain 'totalFiles'");
-        assertTrue(body.contains("files"), "Response should contain 'files'");
-    }
+  @Test
+  public void testZipEndpointDefault() {
+    String url = "http://localhost:" + port + "/zip";
+    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+    assertEquals(200, response.getStatusCode().value());
+    String body = response.getBody();
+    assertNotNull(body);
+    assertTrue(body.contains("totalFiles"), "Response should contain 'totalFiles'");
+    assertTrue(body.contains("files"), "Response should contain 'files'");
+  }
 
-    @Test
-    public void testZipEndpointWithFilename() {
-        String url = "http://localhost:" + port + "/zip?filename=jquery";
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        assertEquals(200, response.getStatusCode().value());
-        String body = response.getBody();
-        assertNotNull(body);
-        assertTrue(body.contains("totalFiles"), "Response should contain 'totalFiles'");
-        assertTrue(body.contains("files"), "Response should contain 'files'");
-    }
-} 
+  @Test
+  public void testZipEndpointWithFilename() {
+    String url = "http://localhost:" + port + "/zip?filename=jquery";
+    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+    assertEquals(200, response.getStatusCode().value());
+    String body = response.getBody();
+    assertNotNull(body);
+    assertTrue(body.contains("totalFiles"), "Response should contain 'totalFiles'");
+    assertTrue(body.contains("files"), "Response should contain 'files'");
+  }
+}
