@@ -1,9 +1,9 @@
-# Reverse Proxy Recording with Proxymock
+# HTTP Map Recording with Proxymock
 
 ## Overview
-This guide shows how to capture HTTP traffic from the Spring Boot newboots application using proxymock's reverse proxy feature. This is particularly useful for recording traffic from reactive HTTP clients like Reactor Netty WebClient that don't easily work with traditional HTTP proxies.
+This guide shows how to capture HTTP traffic from the Spring Boot newboots application using proxymock's map feature. This is particularly useful for recording traffic from reactive HTTP clients like Reactor Netty WebClient that don't easily work with traditional HTTP proxies.
 
-> **⚠️ Note on TLS/HTTPS Traffic**: Currently, proxymock's reverse proxy feature works reliably with non-encrypted HTTP traffic. Support for TLS/HTTPS reverse proxy recording is still being researched due to issues with how some services (like CloudFront) handle requests with explicit port numbers in the URL.
+> **⚠️ Note on TLS/HTTPS Traffic**: Currently, proxymock's map feature works reliably with non-encrypted HTTP traffic. Support for TLS/HTTPS map recording is still being researched due to issues with how some services (like CloudFront) handle requests with explicit port numbers in the URL.
 
 ## The Reactor Netty Challenge
 Reactor Netty WebClient, used by external API integrations in this application, presents unique challenges for traffic recording:
@@ -12,7 +12,7 @@ Reactor Netty WebClient, used by external API integrations in this application, 
 - **Code changes required**: Using traditional HTTP proxies requires modifying the WebClient configuration with `proxyWithSystemProperties()` or custom proxy settings
 - **Connection pooling**: Reactor Netty's connection pooling can interfere with proxy routing
 
-**Solution**: Proxymock's reverse proxy feature eliminates these issues by intercepting traffic at the network level without requiring any code changes.
+**Solution**: Proxymock's map feature eliminates these issues by intercepting traffic at the network level without requiring any code changes.
 
 ## Prerequisites
 - proxymock installed and on PATH
@@ -20,28 +20,49 @@ Reactor Netty WebClient, used by external API integrations in this application, 
 
 ## Manual Setup
 
-### 1. Start Proxymock with Reverse Proxy
+### 1. Start Proxymock with HTTP Map
 ```bash
-# Start recording with reverse proxy for Numbers API
+# Start recording with HTTP map for Numbers API
 proxymock record \
-  --reverse-proxy 65080=numbersapi.com:80 \
+  --map 65080=http://numbersapi.com:80 \
   --app-port 8080 \
   --out proxymock/recorded-$(date +%Y-%m-%d_%H-%M-%S)
 ```
 
 This configures proxymock to:
-- Listen on port 65080 locally
-- Forward all traffic to numbersapi.com:80
+- Listen on port 65080 and forward to http://numbersapi.com:80
+- Forward all traffic from localhost:65080 to numbersapi.com:80
 - Record all request/response pairs
+
+### 1b. Recording with Multiple Maps
+```bash
+# Start recording with multiple HTTP maps for different APIs
+proxymock record \
+  --map 65080=http://numbersapi.com:80 \
+  --map 65081=https://api.github.com:443 \
+  --app-port 8080 \
+  --out proxymock/recorded-$(date +%Y-%m-%d_%H-%M-%S)
+```
+
+This demonstrates mapping multiple APIs simultaneously:
+- localhost:65080 → http://numbersapi.com:80 (Numbers API)
+- localhost:65081 → https://api.github.com:443 (GitHub API)
+
+Configure your application to use both mapped endpoints:
+```bash
+NUMBERS_API_BASE=http://localhost:65080 \
+GITHUB_API_BASE=http://localhost:65081 \
+mvn spring-boot:run
+```
 
 ### 2. Run Application with Environment Override
 ```bash
-# Point the app to use our reverse proxy instead of the real API
+# Point the app to use our mapped endpoint instead of the real API
 NUMBERS_API_BASE=http://localhost:65080 \
 mvn spring-boot:run
 ```
 
-The `NUMBERS_API_BASE` environment variable redirects the WebClient to connect to the proxymock reverse proxy instead of the real Numbers API.
+The `NUMBERS_API_BASE` environment variable redirects the WebClient to connect to the proxymock mapped endpoint instead of the real Numbers API.
 
 ### 3. Exercise the API
 ```bash
@@ -101,13 +122,13 @@ X-Numbers-Api-Type: trivia
 ### METADATA ###
 direction: OUT
 duration: 39ms
-tags: captureMode=proxy, proxyProtocol=tcp:http, reverseProxyHost=localhost
+tags: captureMode=proxy, proxyProtocol=tcp:http, mapHost=localhost
 ```
 
 The recording captures:
 - **Complete HTTP request** including headers, query parameters, and body
 - **Full response** with status, headers, and body content  
-- **Metadata** showing it was captured via reverse proxy with 39ms duration
+- **Metadata** showing it was captured via map with 39ms duration
 - **User-Agent: ReactorNetty/1.1.16** confirming WebClient traffic was recorded
 
 ## Verification Steps
@@ -125,12 +146,42 @@ The recording captures:
 ### No recordings appear
 - Verify proxymock is running before starting the application
 - Check that `NUMBERS_API_BASE` environment variable is set to `http://localhost:65080`
-- Confirm the reverse proxy port (65080) is listening: `lsof -i :65080`
+- Confirm the mapped port (65080) is listening: `lsof -i :65080`
 
 ### Application errors
-- Verify reverse proxy port (65080) is available and not in use by other services
+- Verify mapped port (65080) is available and not in use by other services
 - Check proxymock logs for connection errors
 - Ensure application is using the correct `NUMBERS_API_BASE=http://localhost:65080` value
+
+## Mock Server with Multiple Maps
+
+Once you have recorded traffic, you can run a mock server using the same map configuration:
+
+### Start Mock Server with Multiple Maps
+```bash
+# Start mock server with multiple HTTP maps
+proxymock mock \
+  --map 65080=http://numbersapi.com:80 \
+  --map 65081=https://api.github.com:443 \
+  --in proxymock/recorded-2025-08-29_10-30-45 \
+  --out proxymock/mocked-$(date +%Y-%m-%d_%H-%M-%S)
+```
+
+This configures the mock server to:
+- Serve mock responses for Numbers API on localhost:65080
+- Serve mock responses for GitHub API on localhost:65081
+- Use recorded RRPairs from the specified input directory
+- Log new traffic to the output directory
+
+### Run Application Against Mock
+```bash
+# Point the app to use mock endpoints
+NUMBERS_API_BASE=http://localhost:65080 \
+GITHUB_API_BASE=http://localhost:65081 \
+mvn spring-boot:run
+```
+
+The application will now receive mocked responses based on your recorded traffic, enabling deterministic testing without external dependencies.
 
 ## Cleanup
 - Stop the application: `Ctrl+C`
