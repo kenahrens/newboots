@@ -42,6 +42,16 @@ public class ReactiveApiHelper {
           ? System.getenv("NUMBERS_API_BASE")
           : "http://numbersapi.com";
 
+  /**
+   * Base URL for JSONPlaceholder API (HTTPS test), can be overridden by environment variable.
+   * https://jsonplaceholder.typicode.com
+   */
+  private static final String JSON_API_BASE =
+      System.getenv("JSON_API_BASE") != null
+          ? System.getenv("JSON_API_BASE")
+          : "https://jsonplaceholder.typicode.com";
+
+
   /** WebClient instance using Reactor Netty. */
   private final WebClient webClient;
 
@@ -51,7 +61,7 @@ public class ReactiveApiHelper {
     // For localhost connections (reverse proxy), bypass proxy settings
     // For other connections, honor system proxy properties
     HttpClient httpClient;
-    if (HF_API_BASE.contains("localhost") || NUMBERS_API_BASE.contains("localhost")) {
+    if (HF_API_BASE.contains("localhost") || NUMBERS_API_BASE.contains("localhost") || JSON_API_BASE.contains("localhost")) {
       // Bypass proxy for localhost connections (reverse proxy scenario)
       httpClient = HttpClient.create();
     } else {
@@ -107,5 +117,25 @@ public class ReactiveApiHelper {
         .timeout(Duration.ofSeconds(10))
         .doOnSuccess(response -> LOGGER.info("Successfully retrieved number fact from Numbers API"))
         .doOnError(error -> LOGGER.error("Error calling Numbers API", error));
+  }
+
+  /**
+   * Makes a reactive API call to JSONPlaceholder to get a test post (HTTPS test).
+   *
+   * @return Mono containing the API response as String
+   */
+  public Mono<String> getJsonPlaceholderPost() {
+    String url = JSON_API_BASE + "/posts/1";
+    LOGGER.info(
+        "Making reactive API call to JSONPlaceholder for test post (base: {})", JSON_API_BASE);
+
+    return webClient
+        .get()
+        .uri(url)
+        .retrieve()
+        .bodyToMono(String.class)
+        .timeout(Duration.ofSeconds(10))
+        .doOnSuccess(response -> LOGGER.info("Successfully retrieved post from JSONPlaceholder"))
+        .doOnError(error -> LOGGER.error("Error calling JSONPlaceholder API", error));
   }
 }

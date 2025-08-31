@@ -226,4 +226,21 @@ public final class NewController {
               return Mono.just("Error: Failed to fetch number fact");
             });
   }
+
+  /**
+   * Gets a test post from JSONPlaceholder API using reactive WebClient (HTTPS test).
+   *
+   * @return Mono containing the API response
+   */
+  @GetMapping("/jsontest")
+  public Mono<String> getJsonPlaceholderPost() {
+    LOGGER.info("Calling reactive API for JSONPlaceholder test post");
+    return reactiveApiHelper
+        .getJsonPlaceholderPost()
+        .onErrorResume(
+            error -> {
+              LOGGER.error("Error in reactive API call to JSONPlaceholder", error);
+              return Mono.just("{\"error\": \"Failed to fetch test post\"}");
+            });
+  }
 }

@@ -3,7 +3,7 @@
 ## Overview
 This guide shows how to capture HTTP traffic from the Spring Boot newboots application using proxymock's map feature. This is particularly useful for recording traffic from reactive HTTP clients like Reactor Netty WebClient that don't easily work with traditional HTTP proxies.
 
-> **⚠️ Note on TLS/HTTPS Traffic**: Currently, proxymock's map feature works reliably with non-encrypted HTTP traffic. Support for TLS/HTTPS map recording is still being researched due to issues with how some services (like CloudFront) handle requests with explicit port numbers in the URL.
+> **📋 TLS/HTTPS Support**: For HTTPS APIs, proxymock requires trust store configuration. See the [TLS Configuration](#tls-configuration-for-https) section below for the required JVM flags.
 
 ## The Reactor Netty Challenge
 Reactor Netty WebClient, used by external API integrations in this application, presents unique challenges for traffic recording:
@@ -34,24 +34,25 @@ This configures proxymock to:
 - Forward all traffic from localhost:65080 to numbersapi.com:80
 - Record all request/response pairs
 
-### 1b. Recording with Multiple Maps
+### 1b. Recording with Multiple Maps (HTTP + HTTPS)
 ```bash
-# Start recording with multiple HTTP maps for different APIs
+# Start recording with multiple maps for different APIs
 proxymock record \
   --map 65080=http://numbersapi.com:80 \
-  --map 65081=https://api.github.com:443 \
+  --map 65081=https://jsonplaceholder.typicode.com:443 \
   --app-port 8080 \
   --out proxymock/recorded-$(date +%Y-%m-%d_%H-%M-%S)
 ```
 
 This demonstrates mapping multiple APIs simultaneously:
-- localhost:65080 → http://numbersapi.com:80 (Numbers API)
-- localhost:65081 → https://api.github.com:443 (GitHub API)
+- localhost:65080 → http://numbersapi.com:80 (Numbers API - HTTP)
+- localhost:65081 → https://jsonplaceholder.typicode.com:443 (JSONPlaceholder API - HTTPS)
 
-Configure your application to use both mapped endpoints:
+Configure your application to use both mapped endpoints with proper TLS settings:
 ```bash
+MAVEN_OPTS="-Djavax.net.ssl.trustStore=$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" \
 NUMBERS_API_BASE=http://localhost:65080 \
-GITHUB_API_BASE=http://localhost:65081 \
+JSON_API_BASE=https://localhost:65081 \
 mvn spring-boot:run
 ```
 
@@ -66,8 +67,9 @@ The `NUMBERS_API_BASE` environment variable redirects the WebClient to connect t
 
 ### 3. Exercise the API
 ```bash
-# Make a call that triggers the Reactor Netty WebClient
-curl http://localhost:8080/numberfact
+# Make calls that trigger the Reactor Netty WebClient
+curl http://localhost:8080/numberfact    # Numbers API (HTTP)
+curl http://localhost:8080/jsontest      # JSONPlaceholder API (HTTPS)
 ```
 
 ### 4. View Results
@@ -140,6 +142,8 @@ The recording captures:
 ## Environment Variables
 - `NUMBERS_API_BASE`: Override base URL for Numbers API (default: `http://numbersapi.com`)
   - For recording: Use `http://localhost:65080` to connect to reverse proxy
+- `JSON_API_BASE`: Override base URL for JSONPlaceholder API (default: `https://jsonplaceholder.typicode.com`)
+  - For recording: Use `https://localhost:65081` to connect to reverse proxy
 
 ## Troubleshooting
 
@@ -153,31 +157,32 @@ The recording captures:
 - Check proxymock logs for connection errors
 - Ensure application is using the correct `NUMBERS_API_BASE=http://localhost:65080` value
 
-## Mock Server with Multiple Maps
+## Mock Server
 
 Once you have recorded traffic, you can run a mock server using the same map configuration:
 
 ### Start Mock Server with Multiple Maps
 ```bash
-# Start mock server with multiple HTTP maps
+# Start mock server with multiple HTTP/HTTPS maps
 proxymock mock \
   --map 65080=http://numbersapi.com:80 \
-  --map 65081=https://api.github.com:443 \
+  --map 65081=https://jsonplaceholder.typicode.com:443 \
   --in proxymock/recorded-2025-08-29_10-30-45 \
   --out proxymock/mocked-$(date +%Y-%m-%d_%H-%M-%S)
 ```
 
 This configures the mock server to:
 - Serve mock responses for Numbers API on localhost:65080
-- Serve mock responses for GitHub API on localhost:65081
+- Serve mock responses for JSONPlaceholder API on localhost:65081
 - Use recorded RRPairs from the specified input directory
 - Log new traffic to the output directory
 
 ### Run Application Against Mock
 ```bash
-# Point the app to use mock endpoints
+# Point the app to use mock endpoints with TLS configuration
+MAVEN_OPTS="-Djavax.net.ssl.trustStore=$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" \
 NUMBERS_API_BASE=http://localhost:65080 \
-GITHUB_API_BASE=http://localhost:65081 \
+JSON_API_BASE=https://localhost:65081 \
 mvn spring-boot:run
 ```
 
@@ -188,8 +193,39 @@ The application will now receive mocked responses based on your recorded traffic
 - Stop proxymock: `Ctrl+C`
 - Recording directories are timestamped and won't be overwritten
 
+## TLS Configuration for HTTPS
+
+To record HTTPS traffic with proxymock's map feature, configure JVM trust store settings:
+
+### 1. Generate Proxymock Certificates
+```bash
+# Generate JKS trust store with proxymock certificates
+proxymock certs --jks
+```
+
+### 2. Run Application with TLS Flags
+```bash
+# Start application with trust store configuration
+NUMBERS_API_BASE=http://localhost:65080 \
+JSON_API_BASE=https://localhost:65081 \
+java \
+  -Djavax.net.ssl.trustStore=$HOME/.speedscale/certs/cacerts.jks \
+  -Djavax.net.ssl.trustStorePassword=changeit \
+  -jar target/newboots-*.jar
+```
+
+### 3. Alternative: Maven with JVM Args
+```bash
+# Using Maven with JVM arguments
+MAVEN_OPTS="-Djavax.net.ssl.trustStore=$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" \
+NUMBERS_API_BASE=http://localhost:65080 \
+JSON_API_BASE=https://localhost:65081 \
+mvn spring-boot:run
+```
+
 ## Notes
 - This approach works with any HTTP client library, not just Reactor Netty
 - Sensitive data in API responses will be captured - handle recordings appropriately  
 - Recordings are stored locally and not automatically uploaded
 - Each recording session creates a new timestamped directory
+- For HTTPS APIs, ensure trust store is properly configured to avoid TLS handshake errors

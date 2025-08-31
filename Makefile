@@ -7,7 +7,7 @@ VERSION ?= $(shell cat VERSION 2>/dev/null || echo "0.0.1-SNAPSHOT")
 SOCKS_PROXY ?= -DsocksProxyHost=localhost -DsocksProxyPort=4140
 TRUSTSTORE ?= -Djavax.net.ssl.trustStore=$(HOME)/.speedscale/certs/cacerts.jks
 
-.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean test-endpoints run-proxy docker-compose-up docker-compose-down version set-version sync-version update-k8s-version validate-build docker-build-local check-images
+.PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean test-endpoints run-proxy docker-compose-up docker-compose-down version set-version sync-version update-k8s-version validate-build docker-build-local check-images test-reverse-proxy-recording validate-test-results
 
 test:
 	mvn test
@@ -170,3 +170,22 @@ docker-build-local:
 
 check-images:
 	@./scripts/check-images.sh
+
+# Reverse proxy recording tests
+test-reverse-proxy-recording:
+	@echo "Running reverse proxy recording test suite..."
+	@./scripts/test-reverse-proxy-recording.sh
+
+validate-test-results:
+	@echo "Validating reverse proxy recording test results..."
+	@./scripts/validate-test-results.sh
+
+test-reverse-proxy-clean:
+	@echo "Cleaning up reverse proxy recording test artifacts..."
+	@rm -rf proxymock/recorded-*
+	@rm -rf proxymock/mocked-*
+	@rm -f test-reverse-proxy-recording.log
+	@rm -f app-*.log
+	@rm -f proxymock-*.log
+	@rm -f .mock_pid
+	@echo "Test artifacts cleaned up"
