@@ -103,7 +103,9 @@ test_proxymock_recording() {
     NUMBERS_API_BASE="http://localhost:$NUMBERS_MAP_PORT" \
     HF_API_BASE="https://localhost:$HF_MAP_PORT" \
     MYSQL_PORT=3307 MONGODB_PORT=27017 \
-    mvn spring-boot:run > proxymock-app.log 2>&1 &
+    mvn spring-boot:run \
+    -Dspring-boot.run.jvmArguments="-Djavax.net.ssl.trustStore=$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" \
+    > proxymock-app.log 2>&1 &
     
     if ! wait_for_app; then
         log_error "Proxymock app failed to start"
@@ -206,7 +208,9 @@ test_mock_server() {
     NUMBERS_API_BASE="http://localhost:$NUMBERS_MAP_PORT" \
     HF_API_BASE="https://localhost:$HF_MAP_PORT" \
     MYSQL_PORT=3307 MONGODB_PORT=27017 \
-    mvn spring-boot:run > mock-app.log 2>&1 &
+    mvn spring-boot:run \
+    -Dspring-boot.run.jvmArguments="-Djavax.net.ssl.trustStore=$HOME/.speedscale/certs/cacerts.jks -Djavax.net.ssl.trustStorePassword=changeit" \
+    > mock-app.log 2>&1 &
     
     if ! wait_for_app; then
         log_error "Mock app failed to start"
@@ -294,6 +298,7 @@ test_redirect_bypass_validation() {
 # Main execution
 main() {
     log_info "=== COMPREHENSIVE REVERSE PROXY RECORDING TEST ==="
+    log_info "Recording to $RECORDING_DIR"
     
     trap cleanup EXIT
     
