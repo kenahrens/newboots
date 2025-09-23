@@ -29,6 +29,12 @@ public final class PetBreedsIntegrationTest {
   /** Mock mongo template. */
   @MockBean private org.springframework.data.mongodb.core.MongoTemplate mongoTemplate;
 
+  /** Mock reactive API helper. */
+  @MockBean private ReactiveApiHelper reactiveApiHelper;
+
+  /** Mock NASA rate limiter. */
+  @MockBean private NasaRateLimiter nasaRateLimiter;
+
   @Test
   public void testGetAllPetBreeds() throws Exception {
     List<Pet> samplePets =
