@@ -23,10 +23,6 @@ A Spring Boot microservice application built with Spring Boot 3.2.3 and Java 17.
 - `GET /inventory/search?key={key}&value={value}` - Searches inventory for documents where the given key equals the given value
 - `GET /pets/types?type={type}` - Gets pet breeds based on the provided pet type (e.g., dog, cat, bird)
 
-### gRPC (port 9090)
-- `LocationService/EchoLocation(Location) -> Location`
-- `Health/Check(HealthCheckRequest) -> HealthCheckResponse`
-- `Health/AWSALBHealthCheck(HealthCheckRequest) -> HealthCheckResponse`
 
 ## Prerequisites
 
@@ -63,11 +59,6 @@ A Spring Boot microservice application built with Spring Boot 3.2.3 and Java 17.
 - **javax.xml.soap-api 1.4.0** - SOAP API support
 - **saaj-impl 1.5.3** - SOAP implementation
 
-### gRPC Dependencies
-- **grpc-netty-shaded 1.62.2** - gRPC networking
-- **grpc-protobuf 1.62.2** - Protocol buffers
-- **grpc-services 1.62.2** - gRPC services
-- **protobuf-java 4.25.1** - Protocol buffer runtime
 
 ### Test Dependencies
 - **Spring Boot Test** - Testing framework
@@ -153,7 +144,6 @@ services:
     build: .
     ports:
       - "8080:8080"
-      - "9090:9090"
     environment:
       MONGODB_URI: mongodb://mongo:27017/newboots
       MYSQL_URL: jdbc:mysql://mysql:3306/newboots?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
@@ -354,20 +344,6 @@ curl http://localhost:8080/inventory/search?key=qty&value=25
 curl http://localhost:8080/inventory/search?key=status&value=A
 ```
 
-### Testing the gRPC Endpoints
-
-You can use a gRPC client such as `grpcurl` to test the gRPC endpoints.
-
-```bash
-# EchoLocation
-grpcurl -d '{"latitude": 1.0, "longitude": 2.0, "macAddress": "aa:bb:cc:dd:ee:ff", "ipv4": "127.0.0.1"}' -plaintext localhost:9090 LocationService/EchoLocation
-
-# HealthCheck
-grpcurl -plaintext localhost:9090 Health/Check
-
-# AWSALBHealthCheck
-grpcurl -plaintext localhost:9090 Health/AWSALBHealthCheck
-```
 
 ## Configuration
 

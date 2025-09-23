@@ -189,3 +189,20 @@ test-reverse-proxy-clean:
 	@rm -f proxymock-*.log
 	@rm -f .mock_pid
 	@echo "Test artifacts cleaned up"
+
+# ZIP endpoint test with proxymock
+test-zip-endpoint:
+	@echo "Running ZIP endpoint test with proxymock..."
+	@./scripts/zip-endpoint-test.sh
+
+test-zip-clean:
+	@echo "Cleaning up ZIP endpoint test artifacts..."
+	@rm -rf proxymock/recorded-zip-*
+	@rm -rf proxymock/mocked-zip-*
+	@rm -f baseline-zip*.log
+	@rm -f proxymock-zip*.log
+	@rm -f mock-zip*.log
+	@rm -f proxymock-zip-*.json
+	@rm -f mock-zip-*.json
+	@rm -f baseline-zip-*.txt
+	@echo "ZIP test artifacts cleaned up"
