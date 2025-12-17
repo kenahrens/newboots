@@ -42,3 +42,8 @@ speedscale-diagnostics/
 
 # Generated Kubernetes version patch
 k8s/overlays/default/version-patch.yaml
+
+# Generated certs
+*.crt
+*.key
+*.pem
