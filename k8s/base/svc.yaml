@@ -10,10 +10,8 @@ spec:
     - name: http
       port: 80
       targetPort: 8080
-      nodePort: 30085
     - name: grpc
       port: 9090
       targetPort: 9090
-      nodePort: 30090
   selector:
-    app: newboots-server 
+    app: newboots-server

@@ -6,6 +6,7 @@ GIT_FULL_VERSION ?= $(GIT_VERSION).$(BUILD_NUMBER)
 VERSION ?= $(shell cat VERSION 2>/dev/null || echo "0.0.1-SNAPSHOT")
 SOCKS_PROXY ?= -DsocksProxyHost=localhost -DsocksProxyPort=4140
 TRUSTSTORE ?= -Djavax.net.ssl.trustStore=$(HOME)/.speedscale/certs/cacerts.jks
+NAMESPACE ?= newboots
 
 .PHONY: test jar docker run lint deploy patch check-k8s-image docker-client docker-server delete clean test-endpoints run-proxy docker-compose-up docker-compose-down version set-version sync-version update-k8s-version validate-build docker-build-local check-images test-reverse-proxy-recording validate-test-results
 
@@ -121,8 +122,8 @@ update-k8s-version:
 	@echo "Updating K8s manifests with version: $(VERSION)"
 	@./scripts/update-k8s-version.sh
 
-deploy: update-k8s-version
-	kubectl apply -k k8s/overlays/default
+deploy: update-k8s-version k8s/base/ca.pem
+	kubectl -n $(NAMESPACE) apply -k k8s/overlays/default
 
 deploy-version:
 	@echo "Deploying version $(GIT_FULL_VERSION)"
@@ -206,3 +207,20 @@ test-zip-clean:
 	@rm -f mock-zip-*.json
 	@rm -f baseline-zip-*.txt
 	@echo "ZIP test artifacts cleaned up"
+
+certs: k8s/base/ca.pem
+
+k8s/base/ca.pem:
+	openssl req -x509 -nodes -sha256 -days 1825 -newkey rsa:4096 \
+		-keyout rootCA.key -out rootCA.crt -subj="/CN=mongo"
+	openssl req -newkey rsa:4096 -keyout server.key -nodes \
+		-out domain.csr -subj "/CN=mongo"
+	bash -c "openssl req -x509 -nodes -CA rootCA.crt -CAkey rootCA.key -in domain.csr \
+		-out mongo.crt -days 3560 -nodes \
+		-subj '/CN=mongo' -extensions san -config <( \
+		echo '[req]'; \
+		echo 'distinguished_name=req'; \
+		echo '[san]'; \
+		echo 'subjectAltName=DNS:localhost,DNS:mongo')"
+	cat rootCA.key rootCA.crt > k8s/base/ca.pem
+	cat server.key mongo.crt > k8s/base/cert.pem

@@ -15,6 +15,21 @@ spec:
       containers:
         - name: mongo
           image: mongo:6.0
+          args:
+            - "--tlsMode"
+            - "preferTLS"
+            - "--tlsCertificateKeyFile"
+            - "/etc/ssl/certs/cert.pem"
+            - "--tlsCAFile"
+            - "/etc/ssl/certs/ca.pem"
+            - "--tlsAllowConnectionsWithoutCertificates"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
           ports:
             - containerPort: 27017
           env:
@@ -23,6 +38,17 @@ spec:
           volumeMounts:
             - name: mongo-data
               mountPath: /data/db
+            - mountPath: "/etc/ssl/certs/cert.pem"
+              name: tls-cert
+              subPath: "cert.pem"
+              readOnly: true
+            - mountPath: "/etc/ssl/certs/ca.pem"
+              name: tls-cert
+              subPath: "ca.pem"
+              readOnly: true
       volumes:
+        - name: tls-cert
+          secret:
+            secretName: mongo-tls
         - name: mongo-data
-          emptyDir: {} 
+          emptyDir: {}

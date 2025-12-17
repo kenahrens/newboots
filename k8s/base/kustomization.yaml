@@ -1,8 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
-namespace: newboots
-
+secretGenerator:
+- name: mongo-tls
+  files:
+    - cert.pem
+    - ca.pem
 resources:
   - namespace.yaml
   - deploy.yaml
@@ -12,4 +14,4 @@ resources:
   - mongo-deploy.yaml
   - mongo-svc.yaml
   - mysql-deploy.yaml
-  - mysql-svc.yaml 
+  - mysql-svc.yaml
