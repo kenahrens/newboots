@@ -47,7 +47,7 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             - name: MONGODB_URI
-              value: "mongodb://mongo:27017/newboots"
+              value: "mongodb://mongo:27017/newboots?tls=true&tlsInsecure=true"
             - name: MYSQL_URL
               value: "jdbc:mysql://mysql:3306/newboots?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
             - name: MYSQL_USERNAME
@@ -56,4 +56,4 @@ spec:
               value: "newboots"
           envFrom:
             - configMapRef:
-                name: newboots-server 
+                name: newboots-server
