@@ -34,7 +34,9 @@ services:
       retries: 3
 
   newboots:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.server
     ports:
       - "8080:8080"
       - "9090:9090"
@@ -56,4 +58,4 @@ services:
 
 volumes:
   mongo_data:
-  mysql_data: 
+  mysql_data:

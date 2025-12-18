@@ -23,11 +23,8 @@ public final class PetBreedsIntegrationTest {
   /** Mock pet repository. */
   @MockBean private PetRepository petRepository;
 
-  /** Mock inventory repository. */
-  @MockBean private InventoryRepository inventoryRepository;
-
-  /** Mock mongo template. */
-  @MockBean private org.springframework.data.mongodb.core.MongoTemplate mongoTemplate;
+  /** Mock inventory service. */
+  @MockBean private InventoryService inventoryService;
 
   /** Mock reactive API helper. */
   @MockBean private ReactiveApiHelper reactiveApiHelper;
@@ -37,14 +34,14 @@ public final class PetBreedsIntegrationTest {
 
   @Test
   public void testGetAllPetBreeds() throws Exception {
-    List<Pet> samplePets =
-        Arrays.asList(
-            new Pet("Golden Retriever", "Dog", "Friendly and intelligent family dog", 12, "Large"),
-            new Pet("Persian", "Cat", "Long-haired cat with a sweet personality", 15, "Medium"));
+    List<Pet> samplePets = Arrays.asList(
+        new Pet("Golden Retriever", "Dog",
+                "Friendly and intelligent family dog", 12, "Large"),
+        new Pet("Persian", "Cat", "Long-haired cat with a sweet personality",
+                15, "Medium"));
     when(petRepository.findAll()).thenReturn(samplePets);
 
-    mockMvc
-        .perform(get("/pets/types"))
+    mockMvc.perform(get("/pets/types"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$[0].breed").value("Golden Retriever"))
@@ -53,19 +50,14 @@ public final class PetBreedsIntegrationTest {
 
   @Test
   public void testGetPetBreedsByType() throws Exception {
-    List<Pet> dogPets =
-        Arrays.asList(
-            new Pet("Golden Retriever", "Dog", "Friendly and intelligent family dog", 12, "Large"),
-            new Pet(
-                "Labrador Retriever",
-                "Dog",
-                "Popular family companion and working dog",
-                12,
-                "Large"));
+    List<Pet> dogPets = Arrays.asList(
+        new Pet("Golden Retriever", "Dog",
+                "Friendly and intelligent family dog", 12, "Large"),
+        new Pet("Labrador Retriever", "Dog",
+                "Popular family companion and working dog", 12, "Large"));
     when(petRepository.findBySpeciesIgnoreCase("dog")).thenReturn(dogPets);
 
-    mockMvc
-        .perform(get("/pets/types").param("type", "dog"))
+    mockMvc.perform(get("/pets/types").param("type", "dog"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$[0].species").value("Dog"))
@@ -74,13 +66,12 @@ public final class PetBreedsIntegrationTest {
 
   @Test
   public void testGetPetBreedsByTypeCaseInsensitive() throws Exception {
-    List<Pet> dogPets =
-        Arrays.asList(
-            new Pet("Golden Retriever", "Dog", "Friendly and intelligent family dog", 12, "Large"));
+    List<Pet> dogPets = Arrays.asList(
+        new Pet("Golden Retriever", "Dog",
+                "Friendly and intelligent family dog", 12, "Large"));
     when(petRepository.findBySpeciesIgnoreCase("DOG")).thenReturn(dogPets);
 
-    mockMvc
-        .perform(get("/pets/types").param("type", "DOG"))
+    mockMvc.perform(get("/pets/types").param("type", "DOG"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$[0].species").value("Dog"));
