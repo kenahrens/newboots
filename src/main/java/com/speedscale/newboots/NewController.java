@@ -6,9 +6,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +20,8 @@ import reactor.core.publisher.Mono;
 @RestController
 public final class NewController {
   /** Logger for this class. */
-  private static final Logger LOGGER = LoggerFactory.getLogger(NewController.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(NewController.class);
 
   /** Template for greeting messages. */
   private static final String TEMPLATE = "Hello, %s!";
@@ -31,8 +29,7 @@ public final class NewController {
   /** Counter for greetings. */
   private final AtomicLong counter = new AtomicLong();
 
-  @Autowired private InventoryRepository inventoryRepository;
-  @Autowired private MongoTemplate mongoTemplate;
+  @Autowired private InventoryService inventoryService;
   @Autowired private PetRepository petRepository;
   @Autowired private ReactiveApiHelper reactiveApiHelper;
   @Autowired private NasaRateLimiter nasaRateLimiter;
@@ -64,19 +61,19 @@ public final class NewController {
    * @return a greeting message
    */
   @GetMapping("/greeting")
-  public String greeting(@RequestParam(value = "name", defaultValue = "World") final String name) {
+  public String greeting(@RequestParam(value = "name", defaultValue = "World")
+                         final String name) {
     return String.format(TEMPLATE, name);
   }
 
   @GetMapping("/nasa")
   ResponseEntity<String> nasa() {
     if (!nasaRateLimiter.tryConsume()) {
-      LOGGER.warn(
-          "NASA API rate limit exceeded. Tokens available: "
-              + nasaRateLimiter.getAvailableTokens());
+      LOGGER.warn("NASA API rate limit exceeded. Tokens available: " +
+                  nasaRateLimiter.getAvailableTokens());
       return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-          .body(
-              "{\"error\": \"Rate limit exceeded. Please wait 10 minutes between NASA API calls.\"}");
+          .body("{\"error\": \"Rate limit exceeded. Please wait 10 minutes " +
+                "between NASA API calls.\"}");
     }
 
     String rspBody = "{}";
@@ -108,7 +105,8 @@ public final class NewController {
   }
 
   @GetMapping("/zip")
-  String zip(@RequestParam(value = "filename", required = false) final String filename) {
+  String zip(@RequestParam(value = "filename",
+                           required = false) final String filename) {
     String rspBody = "{}";
     try {
       rspBody = ZipHelper.invoke(filename);
@@ -120,11 +118,11 @@ public final class NewController {
   }
 
   @GetMapping("/inventory/search")
-  public ResponseEntity<?> searchInventory(@RequestParam String key, @RequestParam String value) {
+  public ResponseEntity<?> searchInventory(@RequestParam String key,
+                                           @RequestParam String value) {
     try {
-      Query query = new Query();
-      query.addCriteria(Criteria.where(key).is(convertValue(key, value)));
-      List<Inventory> results = mongoTemplate.find(query, Inventory.class);
+      Object convertedValue = convertValue(key, value);
+      List<Inventory> results = inventoryService.find(key, convertedValue);
       return ResponseEntity.ok(results);
     } catch (Exception e) {
       LOGGER.error("Error searching inventory", e);
@@ -156,13 +154,13 @@ public final class NewController {
    * @return a JSON string with the number and its word representation
    */
   @GetMapping("/number-to-words")
-  public String numberToWords(@RequestParam(value = "number") final int number) {
+  public String
+  numberToWords(@RequestParam(value = "number") final int number) {
     String rspBody;
     try {
       String words = NumberConversionHelper.convertNumberToWords(number);
-      rspBody =
-          String.format(
-              "{\"number\": %d, \"words\": \"%s\"}", number, words.replaceAll("\"", "\\\""));
+      rspBody = String.format("{\"number\": %d, \"words\": \"%s\"}", number,
+                              words.replaceAll("\"", "\\\""));
     } catch (Exception e) {
       LOGGER.error("Exception calling numberToWords", e);
       rspBody = String.format("{\"exception\": \"%s\"}", e.getMessage());
@@ -201,13 +199,10 @@ public final class NewController {
   @GetMapping("/models/openai")
   public Mono<String> getOpenAiModels() {
     LOGGER.info("Calling reactive API for OpenAI models from Hugging Face");
-    return reactiveApiHelper
-        .getOpenAiModels()
-        .onErrorResume(
-            error -> {
-              LOGGER.error("Error in reactive API call", error);
-              return Mono.just("{\"error\": \"Failed to fetch OpenAI models\"}");
-            });
+    return reactiveApiHelper.getOpenAiModels().onErrorResume(error -> {
+      LOGGER.error("Error in reactive API call", error);
+      return Mono.just("{\"error\": \"Failed to fetch OpenAI models\"}");
+    });
   }
 
   /**
@@ -218,29 +213,24 @@ public final class NewController {
   @GetMapping("/numberfact")
   public Mono<String> getNumberFact() {
     LOGGER.info("Calling reactive API for random number fact");
-    return reactiveApiHelper
-        .getRandomNumberFact()
-        .onErrorResume(
-            error -> {
-              LOGGER.error("Error in reactive API call to Numbers API", error);
-              return Mono.just("Error: Failed to fetch number fact");
-            });
+    return reactiveApiHelper.getRandomNumberFact().onErrorResume(error -> {
+      LOGGER.error("Error in reactive API call to Numbers API", error);
+      return Mono.just("Error: Failed to fetch number fact");
+    });
   }
 
   /**
-   * Gets a test post from JSONPlaceholder API using reactive WebClient (HTTPS test).
+   * Gets a test post from JSONPlaceholder API using reactive WebClient (HTTPS
+   * test).
    *
    * @return Mono containing the API response
    */
   @GetMapping("/jsontest")
   public Mono<String> getJsonPlaceholderPost() {
     LOGGER.info("Calling reactive API for JSONPlaceholder test post");
-    return reactiveApiHelper
-        .getJsonPlaceholderPost()
-        .onErrorResume(
-            error -> {
-              LOGGER.error("Error in reactive API call to JSONPlaceholder", error);
-              return Mono.just("{\"error\": \"Failed to fetch test post\"}");
-            });
+    return reactiveApiHelper.getJsonPlaceholderPost().onErrorResume(error -> {
+      LOGGER.error("Error in reactive API call to JSONPlaceholder", error);
+      return Mono.just("{\"error\": \"Failed to fetch test post\"}");
+    });
   }
 }

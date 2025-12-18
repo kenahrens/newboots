@@ -1,7 +1,6 @@
 FROM amazoncorretto:17
 
-# Install Maven 3.9.11
-ENV MAVEN_VERSION=3.9.11
+ENV MAVEN_VERSION=3.9.12
 ENV MAVEN_HOME=/opt/maven
 ENV PATH=$MAVEN_HOME/bin:$PATH
 
@@ -30,4 +29,4 @@ RUN cd /build \
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-cp", "./app.jar:./dependency/*", "com.speedscale.newboots.HttpClientRunner"] 
+ENTRYPOINT ["java", "-cp", "./app.jar:./dependency/*", "com.speedscale.newboots.HttpClientRunner"]
