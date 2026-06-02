@@ -18,7 +18,7 @@ unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
 export MONGODB_HOST="localhost" MYSQL_HOST="localhost"
 
 rm -rf verification/
-export JAVA_HOME="/opt/homebrew/Cellar/openjdk/24.0.2/libexec/openjdk.jdk/Contents/Home"
+# export JAVA_HOME="/opt/homebrew/Cellar/openjdk/24.0.2/libexec/openjdk.jdk/Contents/Home"
 proxymock certs --jks
 
 proxymock record --out verification &

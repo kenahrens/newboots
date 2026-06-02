@@ -2,8 +2,8 @@
 @proxymock_host = http://localhost:4143
 @ecs_host = http://newboots-ecs-alb-1410550651.us-east-1.elb.amazonaws.com
 
-@host = {{proxymock_host}}
-# @host = {{local_host}}
+# @host = {{proxymock_host}}
+@host = {{local_host}}
 
 ### Home endpoint
 GET {{host}}/

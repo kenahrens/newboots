@@ -88,10 +88,28 @@ public final class ZipHelper {
         .build();
 
     // Create HttpClient with custom settings and SSL configuration
-    HttpClient httpClient = HttpClient.create(connectionProvider)
-        .responseTimeout(Duration.ofSeconds(120)) // 2 minutes for large ZIP files
-        .followRedirect(true) // Follow GitHub redirects
-        .secure(sslSpec -> sslSpec.sslContext(createSslContext()));
+    // Check if we're using localhost (proxymock map scenario) to bypass proxy
+    String codeloadBase = System.getenv("ZIP_CODELOAD_BASE");
+    String githubBase = System.getenv("ZIP_GITHUB_BASE");
+    boolean useLocalhost = (codeloadBase != null && codeloadBase.contains("localhost"))
+        || (githubBase != null && githubBase.contains("localhost"));
+    
+    HttpClient httpClient;
+    if (useLocalhost) {
+      // Bypass proxy for localhost connections (proxymock map scenario)
+      // IMPORTANT: Disable automatic redirects so we can manually transform redirect URLs
+      httpClient = HttpClient.create(connectionProvider)
+          .responseTimeout(Duration.ofSeconds(120))
+          .followRedirect(false)
+          .secure(sslSpec -> sslSpec.sslContext(createSslContext()));
+    } else {
+      // Use proxy settings for external connections
+      httpClient = HttpClient.create(connectionProvider)
+          .responseTimeout(Duration.ofSeconds(120))
+          .followRedirect(true)
+          .proxyWithSystemProperties()
+          .secure(sslSpec -> sslSpec.sslContext(createSslContext()));
+    }
 
     return WebClient.builder()
         .clientConnector(new ReactorClientHttpConnector(httpClient))
@@ -219,7 +237,7 @@ public final class ZipHelper {
   }
 
   /**
-   * Downloads a ZIP file from the given URL using WebClient.
+   * Downloads பணZIP file from the given URL using WebClient.
    *
    * @param url the URL to download from
    * @param requestId the request ID for logging
@@ -227,19 +245,41 @@ public final class ZipHelper {
    */
   private static byte[] downloadZipFile(final String url, final String requestId) {
     try {
-      Mono<byte[]> response = getWebClient()
+      Mono<org.springframework.http.ResponseEntity<byte[]>> responseEntity = getWebClient()
           .get()
           .uri(url)
           .accept(MediaType.APPLICATION_OCTET_STREAM)
           .retrieve()
-          .bodyToMono(byte[].class)
-          .doOnSuccess(data -> LOGGER.info("[{}] RES zip download: SUCCESS, size: {} bytes", 
-              requestId, data != null ? data.length : 0))
-          .doOnError(error -> LOGGER.error("[{}] RES zip download: FAILED - {}", 
-              requestId, error.getMessage()));
+          .toEntity(byte[].class);
 
       // Block and wait for the response (up to 2 minutes)
-      return response.block(Duration.ofMinutes(2));
+      org.springframework.http.ResponseEntity<byte[]> entity = responseEntity.block(Duration.ofMinutes(2));
+      
+      if (entity == null) {
+        LOGGER.error("[{}] No response received", requestId);
+        return null;
+      }
+
+      // Handle redirect manually (when redirects are disabled)
+      if (entity.getStatusCode().is3xxRedirection()) {
+        String location = entity.getHeaders().getFirst("Location");
+        if (location != null) {
+          // Transform the redirect URL to use proxymock mapped port if needed
+          String redirectUrl = resolveZipUrl(location);
+          LOGGER.info("[{}] Following redirect to: {}", requestId, redirectUrl);
+          // Recursively download from the redirect URL
+          return downloadZipFile(redirectUrl, requestId);
+        } else {
+          LOGGER.error("[{}] Redirect received but no Location header", requestId);
+          return null;
+        }
+      }
+
+      byte[] data = entity.getBody();
+      LOGGER.info("[{}] RES zip download: SUCCESS, size: {} bytes", 
+          requestId, data != null ? data.length : 0);
+      return data;
+      
     } catch (Exception e) {
       LOGGER.error("[{}] Error downloading ZIP file from URL: {}", requestId, url, e);
       return null;
@@ -257,16 +297,20 @@ public final class ZipHelper {
         return rawUrl;
       }
 
-      String base =
-          getOverrideBase(original.getHost(), original.getScheme() + "://" + original.getHost());
-      if (base.equals(original.getScheme() + "://" + original.getHost())) {
+      String defaultBase = original.getScheme() + "://" + original.getHost();
+      String base = getOverrideBase(original.getHost(), defaultBase);
+      
+      LOGGER.debug("Resolving ZIP URL: rawUrl={}, host={}, defaultBase={}, overrideBase={}", 
+          rawUrl, original.getHost(), defaultBase, base);
+      
+      if (base.equals(defaultBase)) {
         return rawUrl;
       }
 
       URI baseUri = new URI(base);
       String combinedPath = combinePaths(baseUri.getPath(), original.getPath());
 
-      return new URI(
+      String resolvedUrl = new URI(
               baseUri.getScheme(),
               baseUri.getUserInfo(),
               baseUri.getHost(),
@@ -275,6 +319,9 @@ public final class ZipHelper {
               original.getQuery(),
               original.getFragment())
           .toString();
+      
+      LOGGER.debug("Resolved ZIP URL: {} -> {}", rawUrl, resolvedUrl);
+      return resolvedUrl;
 
     } catch (URISyntaxException e) {
       throw new IllegalArgumentException("Invalid ZIP URL: " + rawUrl, e);

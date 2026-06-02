@@ -117,6 +117,25 @@ public final class NewController {
     return rspBody;
   }
 
+  /**
+   * Serves a raw ZIP file of approximately {@code size} megabytes (default 3).
+   * Used to reproduce and test large-payload binary capture (eBPF vs sidecar).
+   */
+  @GetMapping("/zip/serve")
+  public ResponseEntity<byte[]> serveZip(
+      @RequestParam(value = "size", defaultValue = "3") final int size) {
+    try {
+      byte[] zipBytes = ZipServeHelper.generateZip(size);
+      return ResponseEntity.ok()
+          .header("Content-Type", "application/zip")
+          .header("Content-Disposition", "attachment; filename=\"testdata.zip\"")
+          .body(zipBytes);
+    } catch (Exception e) {
+      LOGGER.error("Exception serving zip file", e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
   @GetMapping("/inventory/search")
   public ResponseEntity<?> searchInventory(@RequestParam String key,
                                            @RequestParam String value) {
